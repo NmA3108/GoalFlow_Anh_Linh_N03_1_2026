@@ -1,22 +1,22 @@
 #  GoalFlow – Ứng dụng theo dõi mục tiêu và thói quen
 
-##  Our Application
+##  Ứng dụng của nhóm
 
-###  Content:
+###  Chủ đề
 
-GoalFlow là ứng dụng hỗ trợ người dùng theo dõi mục tiêu cá nhân và xây dựng thói quen mỗi ngày.
+*GoalFlow* là ứng dụng hỗ trợ người dùng theo dõi mục tiêu cá nhân và xây dựng thói quen mỗi ngày.
 Ứng dụng giúp duy trì động lực thông qua việc ghi nhận tiến trình và nhắc nhở thường xuyên.
 
 ---
 
-### 👥 Members:
+### 👥 Thành viên nhóm
 
 * NguyễN Minh Ánh – MASV: 23010718
 * Mai Ngọc Linh – MASV: 230101717
 
 ---
 
-## 📖 Project Introduction
+## 📖 Giới thiệu dự án
 
 Trong cuộc sống hiện đại, việc duy trì thói quen tốt và hoàn thành mục tiêu cá nhân là một thách thức đối với nhiều người.
 *GoalFlow* được xây dựng nhằm hỗ trợ người dùng quản lý mục tiêu, theo dõi tiến độ và hình thành thói quen tích cực mỗi ngày.
@@ -30,7 +30,22 @@ Trong cuộc sống hiện đại, việc duy trì thói quen tốt và hoàn th
 
 ---
 
-## ⚙️ Technologies Used
+## 📖 Đối tượng
+
+Ứng dụng hướng đến các đối tượng sau:
+* Mục tiêu
+* Thói quen
+* Người dùng
+
+---
+
+## 
+
+
+
+---
+
+## ⚙️ Công nghệ sử dụng
 
 * Flutter
 * Dart
@@ -39,7 +54,7 @@ Trong cuộc sống hiện đại, việc duy trì thói quen tốt và hoàn th
 
 ---
 
-## 🛠️ Features
+## 🛠️ Đặc trưng
 
 * ✅ Tạo mục tiêu mới
 * ✅ Theo dõi tiến độ
@@ -48,7 +63,7 @@ Trong cuộc sống hiện đại, việc duy trì thói quen tốt và hoàn th
 
 ---
 
-## 📂 Project Structure
+## 📂 Cấu trúc dự án
 
 lib/
  ├── screens/
@@ -59,20 +74,20 @@ lib/
 
 ---
 
-## ▶️ How to Run
+## ▶️ Làm cách nào để chạy
 
 flutter pub get
 flutter run -d web-server
 
 ---
 
-## Note
+## Ghi chú
 
 * Dự án được phát triển trên môi trường Dev Container
 * Có thể chạy trực tiếp trên GitHub Codespaces
 
 ---
 
-##  Author
+##  Tác giả
 
 * Nhóm N03 – GoalFlow Project
