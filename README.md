@@ -11,7 +11,7 @@
 
 ### 👥 Thành viên nhóm
 
-* NguyễN Minh Ánh – MASV: 23010718
+* Nguyễn Minh Ánh – MASV: 23010718
 * Mai Ngọc Linh – MASV: 230101717
 
 ---
