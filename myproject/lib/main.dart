@@ -102,7 +102,7 @@ class _GoalListScreenState extends State<GoalListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quản lý Mục tiêu (CRUD)')),
+      appBar: AppBar(title: const Text('Quản lý Mục tiêu ')),
       // READ: Hiển thị danh sách
       body: listGoals.isEmpty
           ? const Center(child: Text('Chưa có mục tiêu nào'))
