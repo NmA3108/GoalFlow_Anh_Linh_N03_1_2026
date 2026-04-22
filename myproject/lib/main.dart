@@ -1,48 +1,7 @@
 import 'package:flutter/material.dart';
+import 'goal.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-// User
-var listUser = {'idUser': 1, 'tenUser': 'Mai Ngoc Linh'};
-
-// Goal
-var listGoal = [
-  {
-    'idGoal': 1,
-    'tenGoal': 'Học tiếng Anh',
-    'ngayBatDau': '15-04-2026',
-
-    'ngayKetThuc': '30-04-2026',
-    'tienDo': 0.5,
-  },
-  {
-    'idGoal': 2,
-    'tenGoal': 'Tập thể dục',
-    'ngayBatDau': '15-04-2026',
-    'ngayKetThuc': '20-04-2026',
-    'tienDo': 0.7,
-  },
-];
-
-// Habit
-var listHabit = [
-  {
-    'idHabit': 1,
-    'tenHabit': 'Uống nước',
-    'tanSuat': 'Hàng ngày',
-    'thoiGianNhac': '08:00',
-  },
-  {
-    'idHabit': 2,
-    'tenHabit': 'Đọc sách',
-    'tanSuat': 'Thứ 2-4-6',
-    'thoiGianNhac': '20:00',
-  },
-];
-
-// ================== APP ==================
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -51,89 +10,141 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'GoalFlow',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: const HomePage(),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      home: const GoalListScreen(),
     );
   }
 }
 
-// ================== UI ==================
+class GoalListScreen extends StatefulWidget {
+  const GoalListScreen({super.key});
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  @override
+  State<GoalListScreen> createState() => _GoalListScreenState();
+}
+
+class _GoalListScreenState extends State<GoalListScreen> {
+  // Câu 4: Biến danh sách của Tenclass
+  List<Goal> listGoals = [
+    Goal(
+      idGoal: 1,
+      tenGoal: 'Học Flutter',
+      ngayBatDau: '15/04',
+      ngayKetThuc: '30/04',
+      tienDo: 0.5,
+    ),
+  ];
+
+  // Hàm Create & Edit
+  void _upsertGoal({Goal? existingGoal}) {
+    final nameController = TextEditingController(
+      text: existingGoal?.tenGoal ?? '',
+    );
+    final progressController = TextEditingController(
+      text: existingGoal?.tienDo.toString() ?? '0.0',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(existingGoal == null ? 'Thêm mục tiêu' : 'Sửa mục tiêu'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Tên mục tiêu'),
+            ),
+            TextField(
+              controller: progressController,
+              decoration: const InputDecoration(
+                labelText: 'Tiến độ (0.0 - 1.0)',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                if (existingGoal == null) {
+                  // CREATE
+                  listGoals.add(
+                    Goal(
+                      idGoal: DateTime.now().millisecondsSinceEpoch,
+                      tenGoal: nameController.text,
+                      ngayBatDau: '22/04',
+                      ngayKetThuc: '30/12',
+                      tienDo: double.tryParse(progressController.text) ?? 0.0,
+                    ),
+                  );
+                } else {
+                  // EDIT
+                  existingGoal.tenGoal = nameController.text;
+                  existingGoal.tienDo =
+                      double.tryParse(progressController.text) ?? 0.0;
+                }
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("GoalFlow")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // USER
-            Text(
-              "Xin chào, ${listUser['tenUser']}",
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 20),
-
-            // GOALS
-            const Text(
-              " Danh sách Goal",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 10),
-
-            ...listGoal.map((goal) {
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(goal['tenGoal'].toString()),
-                      Text(
-                        "${((goal['tienDo'] as double) * 100).toInt()}%",
-                        style: const TextStyle(color: Colors.green),
-                      ),
-                    ],
+      appBar: AppBar(title: const Text('Quản lý Mục tiêu (CRUD)')),
+      // READ: Hiển thị danh sách
+      body: listGoals.isEmpty
+          ? const Center(child: Text('Chưa có mục tiêu nào'))
+          : ListView.builder(
+              itemCount: listGoals.length,
+              itemBuilder: (context, index) {
+                final item = listGoals[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
                   ),
-                ),
-              );
-            }),
-
-            const SizedBox(height: 20),
-
-            // HABITS
-            const Text(
-              "🔥 Danh sách Habit",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 10),
-
-            ...listHabit.map((habit) {
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(habit['tenHabit'].toString()),
-                      Text(habit['tanSuat'].toString()),
-                    ],
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: Text('${(item.tienDo * 100).toInt()}%'),
+                    ),
+                    title: Text(item.tenGoal),
+                    subtitle: Text(
+                      'Từ: ${item.ngayBatDau} - Đến: ${item.ngayKetThuc}',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.orange),
+                          onPressed: () => _upsertGoal(existingGoal: item),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            setState(() => listGoals.removeAt(index)); // DELETE
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }),
-          ],
-        ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _upsertGoal(),
+        child: const Icon(Icons.add),
       ),
     );
   }
