@@ -4,10 +4,22 @@ import 'package:flutter/material.dart';
 import 'cau3_models/habit.dart';
 import 'cau4_managers/list_habit.dart';
 
+import 'package:flutter/material.dart';
+import 'front/BotNavi.dart';
+
+import 'MyHomePage.dart';
 void main() {
   runApp(const MyApp());
 }
-
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(),
+    );
+  }
+}
 // User
 var listUser = {'idUser': 1, 'tenUser': 'Mai Ngoc Linh'};
 
