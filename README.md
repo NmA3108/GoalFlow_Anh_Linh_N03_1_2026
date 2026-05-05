@@ -99,7 +99,49 @@ List<Habit> habits = [];
 👉 Class này đóng vai trò quản lý danh sách Habit và xử lý logic dữ liệu.
 
 ---
+## Bài kiểm tra giữa kỳ
 
+## 📌 Phân công công việc (Câu 1)
+
+Nhóm đã thảo luận và phân chia các màn hình (Screens) để phát triển ứng dụng như sau:
+
+### 👥 Số lượng thành viên: 2
+
+### 🔹 Nguyễn Minh Ánh
+- Phụ trách xây dựng màn hình **Content**
+- Thiết kế UI gồm:
+  - Banner
+  - List
+  - Grid
+- Tích hợp hình ảnh minh họa (Image Network)
+
+### 🔹 Mai Ngọc Linh
+- Phụ trách xây dựng màn hình **About**
+- Hiển thị thông tin nhóm và mô tả ứng dụng
+
+---
+
+### 🧭 Màn hình Home
+- Được phát triển dựa trên template (UI) tương tự Content
+- Hiển thị:
+  - Thông tin người dùng
+  - Streak
+  - Nhiệm vụ trong ngày
+
+---
+
+### 🔄 Điều hướng
+- Sử dụng **Bottom Navigation Bar**
+- Gồm 3 màn hình:
+  - Home
+  - Content
+  - About
+
+---
+
+### 📂 Quản lý mã nguồn
+- Mỗi thành viên thực hiện commit phần việc của mình lên GitHub
+- Lịch sử commit thể hiện rõ quá trình làm việc của từng thành viên
 ## 🖥️ Giao diện
 
 📄 File chính:
@@ -151,15 +193,20 @@ lib/
 ├── cau4_managers/
 │   └── list_habit.dart
 │
-├── screens/
-├── widgets/
-├── models/
-├── services/
+├── front/
+│   └── BotNavi.dart
+│
+├── pages/
+│   └── content_page.dart
+│
+├── MyHomePage.dart
+├── MyContactPage.dart
 │
 └── main.dart
 ```
 
 ---
+
 
 ## ▶️ Cách chạy project
 
