@@ -1,4 +1,4 @@
-import 'Goal.dart'; // Import file chứa class Goal của bạn
+import 'goal.dart'; // Import file chứa class Goal của bạn
 
 class ListGoal {
   // --- Biến danh sách của Tenclass ---
