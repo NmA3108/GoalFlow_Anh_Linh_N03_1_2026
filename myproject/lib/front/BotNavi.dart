@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../MyHomePage.dart';
 import 'MyContactPage.dart';
 import '../pages/content_page.dart';
+import '../pages/about_page.dart';
 
 class BotNavi extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _BotNaviState extends State<BotNavi> {
     MyHomePage(),
     ContentPage(),
     MyContactPage(),
+    AboutPage(),
   ];
 
   void _onTapped(int index) {
@@ -47,7 +49,8 @@ class _BotNaviState extends State<BotNavi> {
           children: [
             _buildNavItem(Icons.home, "Home", 0),
             _buildNavItem(Icons.article_outlined, "Content", 1),
-            _buildNavItem(Icons.info_outline, "About", 2),
+            // _buildNavItem(Icons.contact_mail, "Contact", 2),
+            _buildNavItem(Icons.info_outline, "About", 3),
           ],
         ),
       ),

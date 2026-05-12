@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'front/BotNavi.dart';
 
-import 'MyHomePage.dart';
+import '/MyHomePage.dart';
 
 void main() {
   runApp(const MyApp());
