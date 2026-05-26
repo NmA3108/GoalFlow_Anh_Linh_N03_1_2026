@@ -1,41 +1,30 @@
-class Goal {
-  // --- Các biến (Attributes) ---
-  int idGoal; // Mã định danh mục tiêu
-  String tenGoal; // Tên mục tiêu
-  String ngayBatDau; // Ngày bắt đầu (định dạng dd-mm-yyyy)
-  String ngayKetThuc; // Ngày kết thúc
-  double tienDo; // Tiến độ công việc (từ 0.0 đến 1.0)
+// LỚP CHA TỔNG QUÁT - Chứa các thuộc tính và phương thức chung
+abstract class Goal {
+  // 1. Tổng quát hóa thuộc tính: Mục tiêu nào cũng cần có 4 thông tin này
+  int idGoal;
+  String tenGoal;
+  String ngayBatDau;
+  String ngayKetThuc;
 
-  // Constructor (Hàm khởi tạo)
+  // Hàm khởi tạo (Constructor) của lớp cha
   Goal({
     required this.idGoal,
     required this.tenGoal,
     required this.ngayBatDau,
     required this.ngayKetThuc,
-    required this.tienDo,
   });
 
-  // --- Các phương thức (Methods) ---
+  // 2. Tổng quát hóa phương thức: Tạo ra cái tên hàm chung, không viết công thức ở đây
+  double tinhTienDo();
 
-  // 1. Phương thức hiển thị thông tin chi tiết của mục tiêu
+  // Getter cho tienDo
+  double get tienDo => tinhTienDo();
+
+  // Phương thức hiển thị thông tin chung
   void hienThiThongTin() {
     print('Mục tiêu [$idGoal]: $tenGoal');
     print('- Thời gian: $ngayBatDau đến $ngayKetThuc');
-    print('- Tiến độ: ${(tienDo * 100).toStringAsFixed(0)}%');
-  }
-
-  // 2. Phương thức cập nhật tiến độ mới
-  void capNhatTienDo(double moi) {
-    if (moi >= 0 && moi <= 1) {
-      tienDo = moi;
-      print('Đã cập nhật tiến độ cho "$tenGoal" thành ${(tienDo * 100)}%');
-    } else {
-      print('Giá trị tiến độ không hợp lệ!');
-    }
-  }
-
-  // 3. Kiểm tra xem mục tiêu đã hoàn thành chưa (tiến độ = 100%)
-  bool laHoanThanh() {
-    return tienDo >= 1.0;
+    // Gọi hàm tinhTienDo() tổng quát
+    print('- Tiến độ: ${(tinhTienDo() * 100).toStringAsFixed(0)}%');
   }
 }
