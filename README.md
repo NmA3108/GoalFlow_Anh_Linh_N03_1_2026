@@ -99,6 +99,182 @@ List<Habit> habits = [];
 👉 Class này đóng vai trò quản lý danh sách Habit và xử lý logic dữ liệu.
 
 ---
+# 👤 Phần thực hiện của sinh viên: Nguyễn Minh Ánh
+
+## 📌 Chức năng phụ trách
+
+Sinh viên phụ trách xây dựng module quản lý Habit trong ứng dụng GoalFlow.
+
+Bao gồm:
+
+* Xây dựng class Habit
+* Xây dựng CRUD quản lý Habit
+* Áp dụng Generic để tổng quát hóa xử lý dữ liệu
+* Phân tích tổng quát hóa và chuyên biệt hóa trong OOP
+
+---
+
+# 🧠 Phân tích tổng quát hóa và chuyên biệt hóa
+
+## 1. Tổng quát hóa (Generic)
+
+Trong project, nhóm thực hiện tổng quát hóa thông qua Generic class:
+
+```dart
+class DataPrinter<T> {
+  T obj;
+
+  DataPrinter(this.obj);
+
+  void printData() {
+    print(obj);
+  }
+}
+```
+
+### 📌 Ý nghĩa
+
+* `T` là kiểu dữ liệu tổng quát
+* Class có thể làm việc với nhiều kiểu dữ liệu khác nhau
+* Không bị cố định bởi một kiểu dữ liệu cụ thể
+
+### 📌 Mục đích
+
+* Tái sử dụng code
+* Giảm lặp code
+* Dễ mở rộng hệ thống
+* Thể hiện tính tổng quát hóa trong OOP
+
+### 📌 Ví dụ sử dụng
+
+```dart
+DataPrinter<String>("Hello");
+DataPrinter<int>(100);
+DataPrinter<Habit>(habit);
+```
+
+---
+
+## 2. Chuyên biệt hóa (Specialization)
+
+Những phần không thể tổng quát hóa được sẽ được chuyên biệt hóa theo đúng chức năng nghiệp vụ.
+
+Ví dụ:
+
+* Class Habit được xây dựng riêng cho chức năng quản lý thói quen
+* Các thuộc tính mang ý nghĩa cụ thể:
+
+  * tenHabit
+  * tanSuat
+  * thoiGianNhac
+
+### 📌 Class Habit
+
+```dart
+class Habit {
+  int id;
+  String tenHabit;
+  String tanSuat;
+  String thoiGianNhac;
+```
+
+### 📌 Ý nghĩa chuyên biệt hóa
+
+Class Habit đại diện riêng cho đối tượng Habit trong hệ thống GoalFlow và phục vụ trực tiếp cho bài toán quản lý thói quen.
+
+---
+
+# 🏗️ CRUD quản lý Habit
+
+## 📌 CREATE
+
+```dart
+void addHabit(Habit habit) {
+  habits.add(habit);
+}
+```
+
+## 📌 READ
+
+```dart
+void getAllHabits() {
+  for (var h in habits) {
+    h.display();
+  }
+}
+```
+
+## 📌 UPDATE
+
+```dart
+void updateHabit(int id,
+    {String? tenHabit, String? tanSuat, String? thoiGianNhac}) {
+```
+
+## 📌 DELETE
+
+```dart
+void deleteHabit(int id) {
+  habits.removeWhere((h) => h.id == id);
+}
+```
+
+---
+
+# 📂 File thực hiện
+
+## 📌 Model
+
+```bash
+lib/cau3_models/habit.dart
+```
+
+## 📌 CRUD Manager
+
+```bash
+lib/cau4_managers/list_habit.dart
+```
+
+## 📌 Generic
+
+```bash
+lib/cau2_utils/generic.dart
+```
+
+---
+
+# 🎯 Kết quả đạt được
+
+* Áp dụng được tính tổng quát hóa bằng Generic
+* Áp dụng chuyên biệt hóa với đối tượng Habit
+* Xây dựng CRUD hoàn chỉnh
+* Tổ chức code theo hướng OOP
+* Dễ mở rộng và tái sử dụng
+
+---
+
+# 🔗 Link Repository
+
+GitHub Repo:
+
+```bash
+https://github.com/NmA3108/GoalFlow_Anh_Linh_N03_1_2026
+```
+
+---
+
+# 📸 Ảnh minh họa 
+
+* Ảnh framework project
+* Ảnh code Generic
+  <img width="799" height="941" alt="image" src="https://github.com/user-attachments/assets/ad79ac85-8102-4fcd-af0c-43678492d321" />
+
+* Ảnh code CRUD Habit
+  <img width="922" height="929" alt="image" src="https://github.com/user-attachments/assets/ff215cce-0286-411d-9e4b-831eb046c707" />
+* Ảnh màn hình chạy ứng dụng
+
+
+---
 ## Bài kiểm tra giữa kỳ
 
 ## 📌 Phân công công việc (Câu 1)
