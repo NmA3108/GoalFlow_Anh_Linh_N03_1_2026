@@ -1,15 +1,118 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'navigation/home_page_navigation.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
+
+  // Hàm hiển thị thanh menu BottomSheet từ phía dưới lên khi bấm dấu cộng
+  void _showCreateMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent, // Để lộ nền mờ phía sau
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: const Color(
+                0xFF1B1464,
+              ).withOpacity(0.85), // Màu tối đồng bộ nền chính
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 35),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Thanh gạch ngang nhỏ trên cùng của BottomSheet giúp kéo vuốt xuống
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+
+                  // Mục 1: Tạo thói quen mới
+                  _buildBottomSheetItem(
+                    Icons.add_circle_outline,
+                    "Tạo thói quen mới",
+                    onTap: () {
+                      Navigator.pop(context); // Đóng menu
+                      // Thêm logic chuyển màn hình hoặc xử lý của bạn ở đây
+                    },
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Mục 2: Nhật ký hàng ngày
+                  _buildBottomSheetItem(
+                    Icons.book_outlined,
+                    "Nhật ký hàng ngày",
+                    onTap: () {
+                      Navigator.pop(context); // Đóng menu
+                      // Thêm logic chuyển màn hình hoặc xử lý của bạn ở đây
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Widget bổ trợ tạo từng dòng tùy chọn trong Menu hiện lên
+  Widget _buildBottomSheetItem(
+    IconData icon,
+    String title, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 15),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white30,
+              size: 14,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Nền Gradient
+          // 1. Nền Gradient cố định phía sau
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -20,15 +123,15 @@ class MyHomePage extends StatelessWidget {
             ),
           ),
 
-          // 2. Nội dung chính
+          // 2. Nội dung chính có thể cuộn
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
                   const SizedBox(height: 15),
-                  // --- HEADER MỚI: Chứa ảnh, Tên trường và Tên SV ---
-                  _buildHeader(),
+                  _buildTopBar(),
+                  const SizedBox(height: 15),
 
                   // --- BODY: Phần nội dung cuộn ---
                   Expanded(
@@ -37,11 +140,10 @@ class MyHomePage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 20),
-                          _buildTopBar(),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           _buildStreakCard(),
                           const SizedBox(height: 30),
+
                           const Text(
                             "Ngày hôm nay",
                             style: TextStyle(
@@ -56,17 +158,27 @@ class MyHomePage extends StatelessWidget {
                             Icons.psychology,
                           ),
                           const SizedBox(height: 30),
-                          const Text(
-                            "Nhiệm vụ hoàn thành",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                            ),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Nhiệm vụ hoàn thành",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Icon(
+                                Icons.keyboard_arrow_up,
+                                color: Colors.white70.withOpacity(0.5),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 10),
                           _buildTaskCard(
-                            "Tập Thể Dục",
-                            "17:30",
+                            "Học Tiếng Anh",
+                            "08:40",
                             Icons.fitness_center,
                             isCompleted: true,
                           ),
@@ -75,106 +187,32 @@ class MyHomePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Đã xóa _buildFooter() ở đây theo yêu cầu
                 ],
               ),
             ),
           ),
         ],
       ),
-      // bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: _buildBottomNav(
+        context,
+      ), // Truyền context vào đây để nhận sự kiện bấm mở popup
     );
   }
 
-  // --- HEADER CẬP NHẬT THEO ẢNH MỚI ---
-  Widget _buildHeader() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: Row(
-            children: [
-              // Thông tin bên trái
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Lập trình mobile",
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        "PHENIKAA UNIVERSITY",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      "Nguyễn Minh Ánh - Mai Ngọc Linh",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Ảnh bên phải (Bo tròn)
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.purpleAccent, width: 2),
-                ),
-                child: const CircleAvatar(
-                  radius: 45,
-                  backgroundImage: NetworkImage(
-                    'https://scontent.fhan5-6.fna.fbcdn.net/v/t1.15752-9/679695211_1168293898703758_1880242053628299374_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeG4ZMXl0r6VpdMxfzhrmF6TMp5sJFacrGwynmwkVpysbB_qCTYJud3O9tgetc2DmkDrgHVYv2phiHaCPnbBjSFJ&_nc_ohc=2IEsB5QBgIwQ7kNvwHdgt4x&_nc_oc=AdqxRRzgmLDjdCW1qTxDRSo5eEcYFpoQHE5q7hdaBywg9LcpYY-4w2KhUI7Ro40Uk-8&_nc_zt=23&_nc_ht=scontent.fhan5-6.fna&_nc_ss=7b2a8&oh=03_Q7cD5AHwhIY701F94T8dAi_oUzvRm9YUVXr7ym0nCRWKTb0QoA&oe=6A18D583',
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // --- GIỮ LẠI CÁC WIDGET GIAO DIỆN CŨ ---
+  // --- CÁC WIDGET GIAO DIỆN NỘI DUNG TRÊN MÀN HÌNH CHÍNH ---
   Widget _buildTopBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.card_giftcard, color: Colors.white),
+          child: const Icon(Icons.card_giftcard, color: Colors.white, size: 24),
         ),
-        const Icon(Icons.tune, color: Colors.white),
+        Icon(Icons.tune, color: Colors.white.withOpacity(0.8), size: 26),
       ],
     );
   }
@@ -186,8 +224,8 @@ class MyHomePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: [
-            Colors.purple.withOpacity(0.5),
-            Colors.blue.withOpacity(0.5),
+            Colors.purple.withOpacity(0.4),
+            Colors.blue.withOpacity(0.3),
           ],
         ),
       ),
@@ -201,22 +239,41 @@ class MyHomePage extends StatelessWidget {
                   "2 ngày liên tiếp",
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 Row(
                   children: [
                     _buildStreakDot("T2", true),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 15),
                     _buildStreakDot("T3", true),
                   ],
                 ),
               ],
             ),
           ),
-          const Text("Làm tốt lắm!", style: TextStyle(color: Colors.white70)),
-          const SizedBox(width: 10),
-          const CircleAvatar(
-            backgroundColor: Colors.white24,
-            child: Icon(Icons.arrow_forward, color: Colors.white),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Text(
+                "Làm tốt lắm!",
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -228,9 +285,11 @@ class MyHomePage extends StatelessWidget {
       children: [
         Icon(
           Icons.check_circle,
-          color: active ? Colors.greenAccent : Colors.white24,
+          color: active ? const Color(0xFF00E676) : Colors.white24,
+          size: 26,
         ),
-        Text(day, style: const TextStyle(color: Colors.white, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(day, style: const TextStyle(color: Colors.white60, fontSize: 12)),
       ],
     );
   }
@@ -248,24 +307,37 @@ class MyHomePage extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(isCompleted ? 0.05 : 0.15),
+            color: Colors.white.withOpacity(isCompleted ? 0.08 : 0.15),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
           ),
           child: Row(
             children: [
-              Icon(icon, color: Colors.purpleAccent, size: 40),
+              Icon(
+                icon,
+                color: isCompleted
+                    ? Colors.purpleAccent.withOpacity(0.5)
+                    : Colors.purpleAccent,
+                size: 40,
+              ),
               const SizedBox(width: 15),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(time, style: const TextStyle(color: Colors.white60)),
+                  Text(
+                    time,
+                    style: TextStyle(
+                      color: isCompleted ? Colors.white38 : Colors.white60,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: isCompleted ? Colors.white38 : Colors.white,
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -274,7 +346,7 @@ class MyHomePage extends StatelessWidget {
               Row(
                 children: List.generate(
                   4,
-                  (index) => _buildSmallDot(index == 3),
+                  (index) => _buildSmallDot(index < 3 || isCompleted),
                 ),
               ),
             ],
@@ -284,73 +356,86 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSmallDot(bool last) {
+  Widget _buildSmallDot(bool active) {
     return Container(
       margin: const EdgeInsets.only(left: 4),
       width: 8,
       height: 8,
       decoration: BoxDecoration(
-        color: last ? Colors.greenAccent : Colors.white24,
+        color: active ? const Color(0xFF00E676) : Colors.white24,
         borderRadius: BorderRadius.circular(2),
       ),
     );
   }
 
-  Widget _buildBottomNav() {
+  // --- THANH ĐIỀU HƯỚNG DƯỚI (BOTTOM NAVIGATION BAR) ---
+  Widget _buildBottomNav(BuildContext context) {
     return Container(
-      height: 85,
+      height: 75,
+      padding: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF1B1464),
+        color: const Color(0xFF16194F),
         border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(Icons.home, isSelected: true, label: "Home"),
-          _buildNavItem(Icons.article_outlined, label: "Content"),
-          _buildAddButton(),
-          _buildNavItem(Icons.info_outline, label: "About"),
-          _buildNavItem(Icons.person_outline, label: "Profile"),
+          _buildNavItem(Icons.check_circle_outline, context, isSelected: true),
+          _buildNavItem(
+            Icons.bar_chart_rounded,
+            context,
+            onTap: () => HomePageNavigation.navigateToInsightGeneral(context),
+          ),
+          _buildAddButton(context), // Truyền context vào nút dấu cộng
+          _buildNavItem(
+            Icons.favorite_border,
+            context,
+            onTap: () => HomePageNavigation.navigateToInsight(context),
+          ),
+          _buildNavItem(
+            Icons.headphones_outlined,
+            context,
+            onTap: () => HomePageNavigation.navigateToReflection(context),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAddButton() {
-    return Container(
-      transform: Matrix4.translationValues(0, -10, 0),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFAD1DEB), Color(0xFF6E48AA)],
+  Widget _buildNavItem(
+    IconData icon,
+    BuildContext context, {
+    bool isSelected = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Center(
+        child: Icon(
+          icon,
+          color: isSelected ? Colors.white : Colors.white.withOpacity(0.4),
+          size: 28,
         ),
-        borderRadius: BorderRadius.circular(15),
       ),
-      child: const Icon(Icons.add, color: Colors.white, size: 28),
     );
   }
 
-  Widget _buildNavItem(
-    IconData icon, {
-    bool isSelected = false,
-    required String label,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isSelected ? Colors.purpleAccent : Colors.white38,
-          size: 26,
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.purpleAccent : Colors.white38,
-            fontSize: 10,
+  Widget _buildAddButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showCreateMenu(
+        context,
+      ), // Gọi hàm hiển thị BottomSheet khi nhấn nút dấu cộng
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFB176FF), Color(0xFF8C46FF)],
           ),
+          borderRadius: BorderRadius.circular(16),
         ),
-      ],
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'front/BotNavi.dart';
 
-import '/MyHomePage.dart';
+import 'MyHomePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +20,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFF1B1464), // Màu nền gốc tối
       ),
-      home: BotNavi(),
+      home: const MyHomePage(),
     );
   }
 }
