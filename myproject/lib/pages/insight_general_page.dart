@@ -1,346 +1,592 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class InsightGeneralPage extends StatelessWidget {
+import '../theme/app_design.dart';
+import 'create_habit_flow.dart';
+import 'insight_page.dart';
+import 'reflection_page.dart';
+
+class InsightGeneralPage extends StatefulWidget {
   const InsightGeneralPage({super.key});
 
   @override
+  State<InsightGeneralPage> createState() => _InsightGeneralPageState();
+}
+
+class _InsightGeneralPageState extends State<InsightGeneralPage> {
+  bool _individual = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
+    return AppBackground(
+      child: Column(
         children: [
-          // 1. Nền Gradient tối đồng bộ với toàn bộ ứng dụng
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF2E3192), Color(0xFF1B1464)],
-              ),
-            ),
-          ),
-
-          // 2. Nội dung chính giao diện
-          SafeArea(
-            child: SingleChildScrollView(
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
               physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Tiêu đề trang
-                    const Text(
-                      "Insights",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Thanh chuyển đổi Tab (General / Habit)
-                    _buildTabBar(),
-                    const SizedBox(height: 25),
-
-                    // Thẻ tiến trình tổng quan (Vòng tròn % + Số ngày Streak)
-                    _buildOverviewCard(),
-                    const SizedBox(height: 15),
-
-                    // Lưới hiển thị các thẻ chỉ số (Focus time + Completion rate)
-                    _buildStatsGrid(),
-                    const SizedBox(height: 15),
-
-                    // Biểu đồ cột hàng tuần
-                    _buildWeeklyChartCard(),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Widget 1: Thanh chọn giữa "General" và "Habit"
-  Widget _buildTabBar() {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF8C46FF), // Tab đang chọn màu tím nổi bật
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                "General",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: const Text(
-                "Habit",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white60,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Widget 2: Thẻ hiển thị tiến trình tổng quan (Hình tròn % bên trái)
-  Widget _buildOverviewCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Row(
-        children: [
-          // Vòng tròn hiển thị % tiến độ
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 75,
-                height: 75,
-                child: CircularProgressIndicator(
-                  value: 0.68, // Tương đương 68%
-                  strokeWidth: 8,
-                  backgroundColor: Colors.white.withOpacity(0.1),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF00E676),
-                  ), // Màu xanh lá khỏe khoắn
-                ),
-              ),
-              const Text(
-                "68%",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 25),
-          // Thông tin Text bên phải
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Tuyệt vời!",
-                  style: TextStyle(
+                  _individual ? 'Phân tích' : 'Thống kê',
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
-                SizedBox(height: 6),
-                Text(
-                  "Bạn đã duy trì được chuỗi thói quen 4 ngày liên tiếp.",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    height: 1.3,
-                  ),
+                const SizedBox(height: 18),
+                _SegmentedTabs(
+                  individual: _individual,
+                  onGeneral: () => setState(() => _individual = false),
+                  onIndividual: () => setState(() => _individual = true),
                 ),
+                const SizedBox(height: 22),
+                _individual ? const _IndividualStats() : const _GeneralStats(),
               ],
             ),
           ),
+          AppBottomNav(
+            index: 1,
+            onHome: () => Navigator.pop(context),
+            onInsight: () {},
+            onCreate: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CreateHabitFlowPage()),
+            ),
+            onReflection: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReflectionPage()),
+            ),
+            onCommunity: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InsightPage()),
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  // Widget 3: Lưới chia 2 cột hiển thị các chỉ số chi tiết
-  Widget _buildStatsGrid() {
-    return Row(
-      children: [
-        // Thẻ Thời gian tập trung
-        Expanded(
-          child: _buildStatItem(
-            icon: Icons.timer_outlined,
-            iconColor: Colors.orangeAccent,
-            title: "Focus time",
-            value: "1.5 giờ",
+class _SegmentedTabs extends StatelessWidget {
+  const _SegmentedTabs({
+    required this.individual,
+    required this.onGeneral,
+    required this.onIndividual,
+  });
+
+  final bool individual;
+  final VoidCallback onGeneral;
+  final VoidCallback onIndividual;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF070653).withOpacity(.72),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white.withOpacity(.08)),
+      ),
+      child: Row(
+        children: [
+          _TabButton(label: 'Tổng quan', active: !individual, onTap: onGeneral),
+          _TabButton(label: 'Cá nhân', active: individual, onTap: onIndividual),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabButton extends StatelessWidget {
+  const _TabButton({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: active
+                ? const Color(0xFF2C35BF).withOpacity(.72)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: active ? Colors.white : Colors.white.withOpacity(.43),
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
-        const SizedBox(width: 15),
-        // Thẻ Tỷ lệ hoàn thành mục tiêu
-        Expanded(
-          child: _buildStatItem(
-            icon: Icons.track_changes_outlined,
-            iconColor: Colors.cyanAccent,
-            title: "Completion",
-            value: "82%",
-          ),
-        ),
+      ),
+    );
+  }
+}
+
+class _GeneralStats extends StatelessWidget {
+  const _GeneralStats();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
+        _HabitOverviewCard(),
+        SizedBox(height: 20),
+        _PremiumStatsCard(),
       ],
     );
   }
+}
 
-  // Widget con hỗ trợ vẽ từng ô thống kê trong Lưới
-  Widget _buildStatItem({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
+class _HabitOverviewCard extends StatelessWidget {
+  const _HabitOverviewCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      radius: 12,
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: iconColor, size: 28),
-          const SizedBox(height: 15),
-          Text(
-            title,
-            style: const TextStyle(color: Colors.white60, fontSize: 14),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Widget 4: Thẻ chứa Biểu đồ cột hàng tuần (Weekly Chart)
-  Widget _buildWeeklyChartCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Hiệu suất tuần này",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 25),
-          // Khu vực hiển thị các cột đồ thị ghép hàng ngang
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            children: const [
+              Text(
+                'Thói quen đã hoàn thành',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Spacer(),
+              Text(
+                'Tuần',
+                style: TextStyle(
+                  color: AppColors.mint,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: List.generate(7, (i) {
+              final shades = [
+                const Color(0xFFD8BFFF),
+                const Color(0xFFB88CFB),
+                const Color(0xFF9B6FF0),
+                const Color(0xFF7454CD),
+                const Color(0xFF4B2E91),
+              ];
+              return Expanded(
+                child: Container(
+                  height: 46,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: shades[i % shades.length],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    i == 0 ? '0' : '1',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 8),
+          Row(
             children: [
-              _buildBar(day: "T2", fillPercent: 0.4, isActive: false),
-              _buildBar(day: "T3", fillPercent: 0.7, isActive: false),
-              _buildBar(
-                day: "T4",
-                fillPercent: 0.9,
-                isActive: true,
-              ), // Cột ngày hiện tại nổi bật hơn
-              _buildBar(day: "T5", fillPercent: 0.5, isActive: false),
-              _buildBar(day: "T6", fillPercent: 0.3, isActive: false),
-              _buildBar(day: "T7", fillPercent: 0.8, isActive: false),
-              _buildBar(day: "CN", fillPercent: 0.2, isActive: false),
+              const Text(
+                'Ít hơn',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'Nhiều hơn',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(.9),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          const Text(
+            'TÂM TRẠNG HÀNG NGÀY',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: List.generate(
+              7,
+              (i) => Expanded(
+                child: Container(
+                  height: 46,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE7D5FF),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Text(
+                'Tồi tệ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(width: 10),
+              ...[
+                Colors.red,
+                Colors.deepOrange,
+                Colors.amber,
+                Colors.purpleAccent,
+                AppColors.violet,
+              ].map(
+                (color) => Expanded(
+                  child: Container(
+                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Tốt hơn',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ],
           ),
         ],
       ),
     );
   }
+}
 
-  // Widget hỗ trợ vẽ từng cột đơn lẻ trong biểu đồ tuần
-  Widget _buildBar({
-    required String day,
-    required double fillPercent,
-    required bool isActive,
-  }) {
-    const double maxChartHeight = 130.0; // Chiều cao tối đa của cột biểu đồ
+class _PremiumStatsCard extends StatelessWidget {
+  const _PremiumStatsCard();
 
-    return Column(
-      children: [
-        Container(
-          height: maxChartHeight,
-          width: 14,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08), // Phần nền cột trống bên sau
-            borderRadius: BorderRadius.circular(8),
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      radius: 12,
+      padding: const EdgeInsets.fromLTRB(18, 24, 18, 20),
+      child: Column(
+        children: [
+          const Text(
+            'Mở khóa bản Premium để xem\nthêm thống kê',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              height: 1.25,
+              fontWeight: FontWeight.w900,
+            ),
           ),
-          alignment: Alignment
-              .bottomCenter, // Đảm bảo phần dữ liệu được lấp từ dưới lên
-          child: FractionallySizedBox(
-            heightFactor:
-                fillPercent, // Tỷ lệ chiều cao dữ liệu lấp đầy cột (từ 0.0 đến 1.0)
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: isActive
-                      ? [
-                          const Color(0xFF00E676),
-                          const Color(0xFF00B0FF),
-                        ] // Xanh tươi nếu là ngày hiện tại
-                      : [
-                          const Color(0xFFB176FF),
-                          const Color(0xFF8C46FF),
-                        ], // Tím tiêu chuẩn cho các ngày khác
+          const SizedBox(height: 28),
+          const Icon(
+            Icons.workspace_premium,
+            color: Color(0xFFC0B4FF),
+            size: 80,
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.violet,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
                 ),
+              ),
+              child: const Text(
+                'Tiếp tục',
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+}
+
+class _IndividualStats extends StatelessWidget {
+  const _IndividualStats();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
         Text(
-          day,
+          'Luyện nghe tiếng Anh',
+          textAlign: TextAlign.center,
           style: TextStyle(
-            color: isActive ? Colors.white : Colors.white54,
-            fontSize: 12,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
           ),
         ),
+        SizedBox(height: 26),
+        _StreakSummary(),
+        SizedBox(height: 20),
+        _TrackingHint(),
+        SizedBox(height: 20),
+        _CalendarCard(),
+        SizedBox(height: 16),
+        _InfoCard(
+          title: 'Bạn theo dõi thói quen này vào:',
+          body:
+              'Thứ Ba    Thứ Năm    Thứ Bảy\n\nKhông làm vào ngày mở không mất chuỗi.\nKhông ảnh hưởng đến chuỗi của bạn.',
+        ),
+        SizedBox(height: 16),
+        _InfoCard(
+          title: 'Thời gian đã dành',
+          body: 'Bạn đã dành 120 phút\ncho thói quen này',
+        ),
+        SizedBox(height: 16),
+        _InfoCard(
+          title: 'Chuỗi dài nhất',
+          body: 'Chuỗi dài nhất của bạn là 10 ngày',
+        ),
       ],
+    );
+  }
+}
+
+class _StreakSummary extends StatelessWidget {
+  const _StreakSummary();
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      radius: 8,
+      child: Row(
+        children: const [
+          Text(
+            '10',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(width: 18),
+          Text(
+            'Chuỗi ngày',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrackingHint extends StatelessWidget {
+  const _TrackingHint();
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      radius: 8,
+      child: const Text(
+        'Theo dõi thói quen này và tâm trạng của bạn trong tổng 10 ngày để xem kết quả.',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 21,
+          height: 1.18,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarCard extends StatelessWidget {
+  const _CalendarCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final done = {1, 2, 4, 15, 17, 18, 21, 23, 24, 25};
+    return GlassCard(
+      radius: 8,
+      color: const Color(0xFF160D68).withOpacity(.78),
+      child: Column(
+        children: [
+          Row(
+            children: const [
+              Text(
+                'Tháng 3',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Spacer(),
+              _YearButton(),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: List.generate(31, (i) {
+              final day = i + 1;
+              final today = day == 26;
+              final isDone = done.contains(day);
+              return Container(
+                width: 34,
+                height: 34,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: today
+                      ? Colors.white
+                      : isDone
+                      ? AppColors.mint
+                      : const Color(0xFFC7A6FF),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(
+                  '$day',
+                  style: TextStyle(
+                    color: today || isDone
+                        ? Colors.black
+                        : const Color(0xFF604C96),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 16),
+          const Row(
+            children: [
+              _Legend(color: AppColors.mint, label: 'Hoàn thành'),
+              SizedBox(width: 20),
+              _Legend(color: Colors.white, label: 'Hôm nay'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _YearButton extends StatelessWidget {
+  const _YearButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.cream,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Text(
+        'Xem theo năm',
+        style: TextStyle(color: Color(0xFF21102E), fontWeight: FontWeight.w900),
+      ),
+    );
+  }
+}
+
+class _Legend extends StatelessWidget {
+  const _Legend({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      ],
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({required this.title, required this.body});
+
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      radius: 8,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            body,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

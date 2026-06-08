@@ -6,7 +6,15 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } on UnsupportedError catch (error) {
+    debugPrint('Firebase is not configured for this platform: $error');
+  } catch (error) {
+    debugPrint('Firebase initialization skipped: $error');
+  }
   runApp(const MyApp());
 }
 

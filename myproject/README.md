@@ -1,17 +1,76 @@
-# myproject
+# GoalFlow Flutter App
 
-A new Flutter project.
+Ứng dụng Flutter theo dõi thói quen, tâm trạng và thống kê cá nhân theo thiết kế Figma **Habit Tracker Mood Community**.
 
-## Getting Started
+## Chức năng
 
-This project is a starting point for a Flutter application.
+- Daily/Home dashboard
+- Bottom navigation
+- Bottom sheet tạo mới
+- Flow tạo thói quen nhiều bước
+- Reflection / Mood journal
+- Chọn cảm xúc hiện tại
+- Chọn hoạt động trong ngày
+- Ghi chú nhật ký
+- Insight / Thống kê tổng quan
+- Insight / Phân tích cá nhân
+- Community carousel
+- Login
+- Register
+- Forgot password
+- Verify OTP
+- Cài đặt
+- Premium / Price
+- Chỉnh sửa thói quen
+- Thiết lập nhắc nhở
+- Model OOP `Goal` và `ListGoal`
+- Firebase initialization
 
-A few resources to get you started if this is your first Flutter project:
+## File chính
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+lib/
+├── main.dart
+├── MyHomePage.dart
+├── pages/
+│   ├── auth_pages.dart
+│   ├── create_habit_flow.dart
+│   ├── insight_general_page.dart
+│   ├── insight_page.dart
+│   ├── reflection_page.dart
+│   └── settings_pages.dart
+└── theme/
+    └── app_design.dart
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Chạy app
+
+```bash
+flutter pub get
+flutter run
+```
+
+Chạy web server:
+
+```bash
+flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8080
+```
+
+Build web:
+
+```bash
+flutter build web
+```
+
+Chạy test:
+
+```bash
+flutter test
+```
+
+## Ghi chú
+
+- UI đã dựng theo frame Figma chính.
+- Một số asset minh họa đang dùng icon/custom widget thay vì ảnh export từ Figma.
+- Firestore dependency đã khai báo, nhưng dữ liệu UI hiện vẫn chủ yếu là dữ liệu mẫu.
+
