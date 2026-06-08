@@ -1,5 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+
+import '../theme/app_design.dart';
+import 'create_habit_flow.dart';
+import 'insight_general_page.dart';
+import 'insight_page.dart';
 
 class ReflectionPage extends StatefulWidget {
   const ReflectionPage({super.key});
@@ -9,321 +13,682 @@ class ReflectionPage extends StatefulWidget {
 }
 
 class _ReflectionPageState extends State<ReflectionPage> {
-  // Biến lưu trạng thái Icon cảm xúc được chọn (0: Rất tệ -> 4: Tuyệt vời)
-  int _selectedMoodIndex = 2; // Mặc định chọn biểu cảm bình thường
+  int _page = 0;
+  final Set<String> _emotions = {'Mơ hồ', 'Hạnh phúc', 'Biết ơn'};
+  final Set<String> _activities = {'Tình yêu', 'Học', 'Việc nhà'};
+  final _noteController = TextEditingController();
 
-  // Danh sách các biểu tượng cảm xúc và nhãn tương ứng
-  final List<Map<String, dynamic>> _moods = [
-    {"icon": "😢", "label": "Tệ"},
-    {"icon": "😔", "label": "Hơi buồn"},
-    {"icon": "😐", "label": "Bình thường"},
-    {"icon": "🙂", "label": "Vui vẻ"},
-    {"icon": "🤩", "label": "Tuyệt vời"},
-  ];
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
+    return AppBackground(
+      child: Column(
         children: [
-          // 1. Nền Gradient tối đồng bộ thiết kế toàn app
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF2E3192), Color(0xFF1B1464)],
+          Expanded(child: _buildContent()),
+          if (_page != 3)
+            _BottomActions(
+              showNav: _page == 0,
+              onBack: () {
+                if (_page == 0) {
+                  Navigator.pop(context);
+                } else {
+                  setState(() => _page--);
+                }
+              },
+              onNext: () => setState(() => _page = (_page + 1).clamp(0, 3)),
+            ),
+          if (_page == 0)
+            AppBottomNav(
+              index: 3,
+              onHome: () => Navigator.pop(context),
+              onInsight: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InsightGeneralPage()),
+              ),
+              onCreate: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateHabitFlowPage()),
+              ),
+              onReflection: () {},
+              onCommunity: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InsightPage()),
               ),
             ),
-          ),
-
-          // 2. Nội dung giao diện bên trong
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Tiêu đề đầu trang
-                    _buildHeader(),
-                    const SizedBox(height: 25),
-
-                    // Thanh cuộn lịch ngày tháng ngang
-                    _buildDateTimeline(),
-                    const SizedBox(height: 30),
-
-                    // Khu vực chọn tâm trạng ngày hôm nay
-                    const Text(
-                      "Tâm trạng của bạn hôm nay thế nào?",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    _buildMoodTracker(),
-                    const SizedBox(height: 35),
-
-                    // Ô viết nhật ký phản chiếu
-                    const Text(
-                      "Ghi lại suy nghĩ của bạn",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    _buildReflectionInput(),
-                    const SizedBox(height: 30),
-
-                    // Nút Lưu nhật ký
-                    _buildSaveButton(),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  // Widget: Header gồm chữ tiêu đề và nút icon chức năng nhỏ
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildContent() {
+    switch (_page) {
+      case 0:
+        return _ReviewPage(onStart: () => setState(() => _page = 1));
+      case 1:
+        return _EmotionPage(selected: _emotions, onToggle: _toggleEmotion);
+      case 2:
+        return _ActivityPage(selected: _activities, onToggle: _toggleActivity);
+      default:
+        return _NotePage(
+          controller: _noteController,
+          onDone: () => Navigator.pop(context),
+        );
+    }
+  }
+
+  void _toggleEmotion(String value) {
+    setState(
+      () => _emotions.contains(value)
+          ? _emotions.remove(value)
+          : _emotions.add(value),
+    );
+  }
+
+  void _toggleActivity(String value) {
+    setState(
+      () => _activities.contains(value)
+          ? _activities.remove(value)
+          : _activities.add(value),
+    );
+  }
+}
+
+class _ReviewPage extends StatelessWidget {
+  const _ReviewPage({required this.onStart});
+
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 18),
+      physics: const BouncingScrollPhysics(),
       children: [
         const Text(
-          "Reflection",
+          'Nhìn lại',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
+            fontSize: 30,
+            fontWeight: FontWeight.w900,
           ),
         ),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(12),
+        const SizedBox(height: 18),
+        SizedBox(
+          height: 76,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: 7,
+            separatorBuilder: (_, __) => const SizedBox(width: 14),
+            itemBuilder: (context, index) {
+              final faces = ['😞', '😟', '🙂', '+', '+', '😄', '+'];
+              return Column(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.violet.withOpacity(.78),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      faces[index],
+                      style: const TextStyle(fontSize: 25, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'May  ${24 + index}',
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                  ),
+                ],
+              );
+            },
           ),
-          child: const Icon(
-            Icons.calendar_month_outlined,
-            color: Colors.white,
-            size: 22,
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 45,
+          child: ElevatedButton(
+            onPressed: onStart,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.violet,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Nhấn để nhìn lại ngày của bạn',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ),
+        const SizedBox(height: 22),
+        GlassCard(
+          radius: 12,
+          color: const Color(0xFF20147A).withOpacity(.86),
+          child: Row(
+            children: const [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tâm trạng của bạn vào 28-04-2025',
+                      style: TextStyle(color: Color(0xFFBDB4E7)),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Tuyệt vời',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '3',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(width: 22),
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: Color(0xFFFF4267),
+                child: Icon(Icons.favorite, color: Colors.white, size: 34),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        GlassCard(
+          radius: 12,
+          color: const Color(0xFFD7CCF0).withOpacity(.78),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                'Suy nghĩ của bạn',
+                style: TextStyle(
+                  color: Color(0xFF433360),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 14),
+              Text(
+                'Tôi không biết',
+                style: TextStyle(color: Color(0xFF211C35), fontSize: 17),
+              ),
+              SizedBox(height: 18),
+              Text(
+                'Cảm xúc của bạn',
+                style: TextStyle(
+                  color: Color(0xFF433360),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 10),
+              _TagRow(tags: ['Tự hào', 'Hưng phấn', 'Bất ổn', 'Biết ơn']),
+              SizedBox(height: 18),
+              Text(
+                'Hoạt động của bạn',
+                style: TextStyle(
+                  color: Color(0xFF433360),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _ActivityMini(icon: '😡', label: 'Thể thao'),
+                  _ActivityMini(icon: '😡', label: 'Tình yêu'),
+                  _ActivityMini(icon: '😡', label: 'Bạn bè'),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        GlassCard(
+          radius: 12,
+          color: const Color(0xFF251B72).withOpacity(.82),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                'Tuần của bạn',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 14),
+              _WeekBars(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        GlassCard(
+          radius: 12,
+          color: AppColors.violet.withOpacity(.82),
+          child: Row(
+            children: const [
+              Text(
+                'Tâm trạng trung bình\nKhá vui vẻ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  height: 1.55,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Spacer(),
+              Text(
+                '4.0',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
+}
 
-  // Widget: Thanh lịch cuộn ngang giả lập dòng thời gian trong tuần
-  Widget _buildDateTimeline() {
-    // Dữ liệu giả lập các ngày trong tuần
-    final List<Map<String, String>> days = [
-      {"day": "Mon", "date": "25"},
-      {"day": "Tue", "date": "26"},
-      {"day": "Wed", "date": "27"},
-      {"day": "Thu", "date": "28"},
-      {"day": "Fri", "date": "29"},
-      {"day": "Sat", "date": "30"},
-      {"day": "Sun", "date": "31"},
+class _EmotionPage extends StatelessWidget {
+  const _EmotionPage({required this.selected, required this.onToggle});
+
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      'Tự hào',
+      'Mơ hồ',
+      'Bình yên',
+      'Hưng phấn',
+      'Buồn',
+      'Hạnh phúc',
+      'Bất ổn',
+      'Bất lực',
+      'Lo âu',
+      'Biết ơn',
+      'Yêu thương',
+      'Tức giận',
+      'Bình thản',
+      'Sáng tạo',
+      'Phân tâm',
+      'Quyết tâm',
+      'Tự ti',
+      'Hoài niệm',
     ];
-
-    String currentSelectedDate =
-        "28"; // Giả lập ngày đang chọn là thứ 5 ngày 28
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: days.map((item) {
-        bool isSelected = item["date"] == currentSelectedDate;
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? const Color(0xFF8C46FF)
-                : Colors.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isSelected
-                  ? Colors.transparent
-                  : Colors.white.withOpacity(0.03),
-            ),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 18),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        const Text(
+          'Cảm xúc hiện tại của bạn\nlà gì?',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 25,
+            height: 1.25,
+            fontWeight: FontWeight.w900,
           ),
-          child: Column(
-            children: [
-              Text(
-                item["day"]!,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.white38,
-                  fontSize: 12,
+        ),
+        const SizedBox(height: 30),
+        Text(
+          'Tôi cảm thấy...',
+          style: TextStyle(color: Colors.white.withOpacity(.45), fontSize: 16),
+        ),
+        const SizedBox(height: 26),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.22,
+          ),
+          itemBuilder: (context, index) {
+            final item = items[index];
+            final active = selected.contains(item);
+            return GestureDetector(
+              onTap: () => onToggle(item),
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: active ? AppColors.violet : const Color(0xFF171061),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  item,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                item["date"]!,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          },
+        ),
+      ],
     );
   }
+}
 
-  // Widget: Khu vực bấm chọn các trạng thái Mood
-  Widget _buildMoodTracker() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.03)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(_moods.length, (index) {
-          bool isSelected = _selectedMoodIndex == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedMoodIndex = index;
-              });
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withOpacity(0.12)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected
-                      ? Colors.white.withOpacity(0.15)
-                      : Colors.transparent,
+class _ActivityPage extends StatelessWidget {
+  const _ActivityPage({required this.selected, required this.onToggle});
+
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      'Thể thao',
+      'Tình yêu',
+      'Bạn bè',
+      'Công việc',
+      'Học',
+      'Chăm sóc',
+      'Việc nhà',
+      'Thiên nhiên',
+      'Thư giãn',
+    ];
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(26, 28, 26, 18),
+      children: [
+        const Text(
+          'Có gì mới hôm nay?',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 20),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.2,
+          ),
+          itemBuilder: (context, index) {
+            final item = items[index];
+            final active = selected.contains(item);
+            return GestureDetector(
+              onTap: () => onToggle(item),
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: active ? AppColors.violet : const Color(0xFF171061),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('😡', style: TextStyle(fontSize: 22)),
+                    const SizedBox(height: 8),
+                    Text(
+                      item,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  Text(
-                    _moods[index]["icon"],
-                    style: const TextStyle(fontSize: 28),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _moods[index]["label"],
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.white38,
-                      fontSize: 11,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+            );
+          },
+        ),
+        const SizedBox(height: 26),
+        const Text(
+          'Thói quen đã hoàn thành',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 14),
+        ...[
+          ('Đọc tin tức tiếng Anh', true, Icons.psychology_alt),
+          ('Đi chơi', false, Icons.diversity_3),
+          ('Gặp gỡ bạn bè', false, Icons.handshake),
+        ].map(
+          (item) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.22),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Row(
+              children: [
+                Icon(item.$3, color: const Color(0xFFA7A0FF), size: 32),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    item.$1,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  // Widget: Hộp nhập văn bản ghi nhật ký nhiều dòng phong cách Glassmorphism
-  Widget _buildReflectionInput() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.03)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: TextField(
-              maxLines: 8, // Cho phép hiển thị tối đa rộng 8 dòng nhập dữ liệu
-              keyboardType: TextInputType.multiline,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                height: 1.4,
-              ),
-              cursorColor: const Color(0xFF8C46FF),
-              decoration: InputDecoration(
-                hintText:
-                    "Hôm nay bạn đã làm được những gì? Có điều gì làm bạn học hỏi được hoặc cần cải thiện không? Hãy viết ra đây nhé...",
-                hintStyle: TextStyle(
-                  color: Colors.white.withOpacity(0.25),
-                  fontSize: 14,
-                  height: 1.4,
                 ),
-                border: InputBorder
-                    .none, // Ẩn đường gạch chân thô mặc định của TextField
-              ),
+                Icon(
+                  item.$2 ? Icons.check_box : Icons.check_box_outline_blank,
+                  color: item.$2 ? AppColors.mint : Colors.white,
+                ),
+              ],
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _NotePage extends StatelessWidget {
+  const _NotePage({required this.controller, required this.onDone});
+
+  final TextEditingController controller;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(18, 26, 18, 20),
+      children: [
+        const Text(
+          'Thêm ghi chú về bất cứ điều gì bạn\nnghĩ và cảm nhận.',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 21,
+            height: 1.35,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 24),
+        TextField(
+          controller: controller,
+          minLines: 12,
+          maxLines: 18,
+          style: const TextStyle(color: Colors.white, fontSize: 17),
+          decoration: InputDecoration(
+            hintText: 'Ghi Chú',
+            hintStyle: TextStyle(color: Colors.white.withOpacity(.45)),
+            border: InputBorder.none,
+          ),
+        ),
+        const SizedBox(height: 24),
+        PrimaryButton(label: 'Hoàn thành', onPressed: onDone),
+      ],
+    );
+  }
+}
+
+class _BottomActions extends StatelessWidget {
+  const _BottomActions({
+    required this.showNav,
+    required this.onBack,
+    required this.onNext,
+  });
+
+  final bool showNav;
+  final VoidCallback onBack;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    if (showNav) return const SizedBox.shrink();
+    return Container(
+      height: 92,
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B2373).withOpacity(.96),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: onBack,
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+          ),
+          const Spacer(),
+          FloatingActionButton(
+            onPressed: onNext,
+            backgroundColor: AppColors.mint,
+            foregroundColor: Colors.black,
+            child: const Icon(Icons.arrow_forward, size: 28),
+          ),
+        ],
       ),
     );
   }
+}
 
-  // Widget: Nút Lưu nhật ký (Save Button) góc bo với dải màu Gradient nổi bật
-  Widget _buildSaveButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: ElevatedButton(
-        onPressed: () {
-          // Xử lý sự kiện lưu thông tin phản chiếu ở đây
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Đã lưu nhật ký phản chiếu hôm nay!")),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          backgroundColor: Colors.transparent,
-          shadowColor: const Color(0xFF8C46FF).withOpacity(0.3),
-          elevation: 5,
-        ),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFB176FF), Color(0xFF8C46FF)],
-            ),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Container(
-            alignment: Alignment.center,
-            child: Text(
-              "Lưu nhật ký",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+class _TagRow extends StatelessWidget {
+  const _TagRow({required this.tags});
+
+  final List<String> tags;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 9,
+      runSpacing: 9,
+      children: tags
+          .map(
+            (tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF563DB7),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: Text(
+                tag,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
-          ),
-        ),
-      ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _ActivityMini extends StatelessWidget {
+  const _ActivityMini({required this.icon, required this.label});
+
+  final String icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(icon, style: const TextStyle(fontSize: 22)),
+        const SizedBox(height: 7),
+        Text(label, style: const TextStyle(color: Color(0xFF211C35))),
+      ],
+    );
+  }
+}
+
+class _WeekBars extends StatelessWidget {
+  const _WeekBars();
+
+  @override
+  Widget build(BuildContext context) {
+    final values = [1, 3, 4, 0, 0, 5, 0];
+    final colors = [
+      Colors.red,
+      Colors.orange,
+      AppColors.cream,
+      Colors.transparent,
+      Colors.transparent,
+      AppColors.mint,
+      Colors.transparent,
+    ];
+    final labels = ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(values.length, (i) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              values[i] == 0 ? '' : '${values[i]}',
+              style: const TextStyle(color: Colors.white, fontSize: 11),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              width: 13,
+              height: 18.0 + values[i] * 14,
+              decoration: BoxDecoration(
+                color: colors[i],
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              labels[i],
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

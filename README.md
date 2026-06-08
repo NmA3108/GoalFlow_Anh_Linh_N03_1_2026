@@ -1,233 +1,283 @@
-# 🚀 GoalFlow – Ứng dụng theo dõi mục tiêu và thói quen
+# GoalFlow - Habit Tracker Mood Community
 
----
+GoalFlow là ứng dụng Flutter giúp người dùng xây dựng thói quen, theo dõi chuỗi ngày hoàn thành, ghi lại tâm trạng hằng ngày và xem thống kê cá nhân. Giao diện được phát triển theo thiết kế Figma **Habit Tracker Mood Community**.
 
-## 📌 Giới thiệu
+## Thành viên nhóm
 
-**GoalFlow** là ứng dụng hỗ trợ người dùng theo dõi **mục tiêu cá nhân (Goal)** và xây dựng **thói quen (Habit)** mỗi ngày.
-Ứng dụng giúp duy trì động lực thông qua việc ghi nhận tiến trình và nhắc nhở thường xuyên.
+- Nguyễn Minh Ánh - MASV: 23010718
+- Mai Ngọc Linh - MASV: 230101717
 
----
+## Công nghệ sử dụng
 
-## 👥 Thành viên nhóm
+- Flutter
+- Dart
+- Firebase Core
+- Cloud Firestore
+- Material Design 3
+- Figma design reference
 
-* Nguyễn Minh Ánh – MASV: 23010718
-* Mai Ngọc Linh – MASV: 230101717
+## Chức năng đã triển khai
 
----
+### 1. Màn hình Daily/Home
 
-## 📖 Mô tả dự án
+- Hiển thị thời gian giả lập theo thiết kế mobile.
+- Hiển thị streak: `2 ngày liên tiếp`.
+- Hiển thị thói quen trong ngày.
+- Hiển thị danh sách nhiệm vụ đã hoàn thành.
+- Bottom navigation gồm:
+  - Daily/Home
+  - Insight/Statistics
+  - Create Habit
+  - Reflection/Mood
+  - Community/Insight
+- Bấm icon cài đặt trên Home để mở màn hình `Cài đặt`.
+- Bấm task `Học Tiếng Anh` để mở màn hình chỉnh sửa thói quen.
 
-Trong cuộc sống hiện đại, việc duy trì thói quen tốt và hoàn thành mục tiêu cá nhân là một thách thức lớn.
-**GoalFlow** được xây dựng nhằm hỗ trợ người dùng:
+### 2. Tạo thói quen mới
 
-* Theo dõi tiến trình mục tiêu
-* Xây dựng thói quen tích cực
-* Duy trì kỷ luật cá nhân
+Flow tạo thói quen được tách thành nhiều bước theo Figma:
 
----
+- Nhập tên thói quen.
+- Chọn lĩnh vực thói quen cải thiện, ví dụ `Tâm trí`.
+- Chọn lịch hoàn thành:
+  - Mỗi ngày
+  - Tùy chọn ngày
+  - Chọn các ngày trong tuần
+- Viết lý do tạo động lực.
+- Thiết lập lời nhắc.
+- Hoàn thành tạo thói quen.
 
-## 🎯 Đối tượng quản lý
+### 3. Bottom Sheet tạo mới
 
-Ứng dụng tập trung vào 3 đối tượng chính:
+Khi bấm nút `+` ở bottom navigation, app mở bottom sheet gồm:
 
-* 👤 **User** – người sử dụng hệ thống
-* 🎯 **Goal** – mục tiêu cá nhân
-* 🔥 **Habit** – thói quen hằng ngày
+- `Tạo 1 thói quen mới`
+- `Nhật kí hằng ngày`
 
----
+### 4. Reflection / Mood Journal
 
-## 🧠 Nội dung bài tập (OOP)
+- Màn hình `Nhìn lại` hiển thị các ngày đã ghi nhận tâm trạng.
+- Hiển thị thông tin tâm trạng theo ngày.
+- Hiển thị suy nghĩ, cảm xúc và hoạt động đã chọn.
+- Hiển thị biểu đồ tuần.
+- Hiển thị điểm tâm trạng trung bình.
+- Màn hình chọn cảm xúc hiện tại:
+  - Tự hào
+  - Mơ hồ
+  - Bình yên
+  - Hưng phấn
+  - Buồn
+  - Hạnh phúc
+  - Bất ổn
+  - Bất lực
+  - Lo âu
+  - Biết ơn
+  - Yêu thương
+  - Tức giận
+  - Bình thản
+  - Sáng tạo
+  - Phân tâm
+  - Quyết tâm
+  - Tự ti
+  - Hoài niệm
+- Màn hình chọn hoạt động trong ngày:
+  - Thể thao
+  - Tình yêu
+  - Bạn bè
+  - Công việc
+  - Học
+  - Chăm sóc
+  - Việc nhà
+  - Thiên nhiên
+  - Thư giãn
+- Màn hình nhập ghi chú cá nhân.
 
-### ✨ Câu 2: Generics
+### 5. Insight / Thống kê
 
-Xây dựng lớp tổng quát giúp xử lý dữ liệu linh hoạt.
+Màn hình thống kê gồm 2 tab:
 
-📄 File:
+- `Tổng quan`
+- `Cá nhân`
+
+Chức năng tab `Tổng quan`:
+
+- Thống kê thói quen đã hoàn thành trong tuần.
+- Heatmap mức độ hoàn thành.
+- Thống kê tâm trạng hằng ngày.
+- Chú giải mức tâm trạng từ `Tồi tệ` đến `Tốt hơn`.
+- Premium card: `Mở khóa bản Premium để xem thêm thống kê`.
+
+Chức năng tab `Cá nhân`:
+
+- Hiển thị thói quen `Luyện nghe tiếng Anh`.
+- Hiển thị chuỗi ngày: `10 Chuỗi ngày`.
+- Hiển thị gợi ý theo dõi đủ 10 ngày để xem kết quả.
+- Lịch tháng với trạng thái:
+  - Hoàn thành
+  - Hôm nay
+  - Chưa hoàn thành
+  - Chưa theo dõi
+- Hiển thị ngày theo dõi thói quen.
+- Hiển thị thời gian đã dành.
+- Hiển thị chuỗi dài nhất.
+
+### 6. Community / Insight Story
+
+- Màn hình `Sự Thấu Hiểu`.
+- Hiển thị carousel các bài viết/thẻ nội dung.
+- Hiển thị chỉ báo trang.
+- Có bottom navigation đồng bộ với toàn app.
+
+### 7. Auth
+
+Đã thêm các màn hình xác thực theo Figma:
+
+- Login
+- Register
+- Forgot Password
+- Verify OTP
+- Continue with Google
+- Continue with Apple
+- Continue as Guest
+
+### 8. Cài đặt
+
+Màn hình `Cài đặt` gồm:
+
+- Thông tin ứng dụng.
+- Tài khoản người dùng.
+- Email người dùng.
+- Cài đặt chung:
+  - Chế độ tối
+  - Hiển thị kiểm tra trách nhiệm
+  - Hiển thị các thói quen sắp tới
+  - Hiển thị kiểm tra tâm trạng hằng ngày
+- Thay đổi thứ tự thói quen.
+- Mở khóa Premium.
+- Đánh giá ứng dụng 5 sao.
+- Liên hệ nhà phát triển.
+- Chia sẻ với bạn bè.
+- Giấy phép.
+- Đăng xuất.
+- Xóa tài khoản.
+
+### 9. Premium / Price
+
+Màn hình Premium gồm:
+
+- Danh sách quyền lợi:
+  - Không giới hạn thói quen và nhật ký
+  - Đánh bại sự trì hoãn
+  - Thống kê tâm trạng và thói quen
+  - Động lực hằng ngày
+- Gói năm.
+- Gói tháng.
+- Đánh giá người dùng.
+- Điều khoản đăng ký.
+- Nút tiếp tục.
+
+### 10. Chỉnh sửa thói quen
+
+- Xem và sửa tên thói quen.
+- Xóa thói quen.
+- Tạo/chỉnh lời nhắc.
+- Xem và sửa lý do.
+- Chỉnh sửa nhóm thói quen.
+- Chọn ngày trong tuần.
+- Chọn lĩnh vực thói quen.
+- Lưu thay đổi.
+
+### 11. Nhắc nhở
+
+- Màn hình chọn thời gian nhắc nhở.
+- Hủy nhắc nhở.
+- Hoàn thành thiết lập nhắc nhở.
+
+### 12. Firebase
+
+- App có khởi tạo Firebase trong `main.dart`.
+- Đã khai báo dependencies:
+  - `firebase_core`
+  - `cloud_firestore`
+- Firebase config hiện có cho iOS, macOS và Windows.
+- Với platform chưa cấu hình Firebase, app bỏ qua init để không crash khi chạy UI.
+
+### 13. OOP / Model
+
+- Class `Goal`:
+  - `idGoal`
+  - `tenGoal`
+  - `ngayBatDau`
+  - `ngayKetThuc`
+  - `tienDo`
+  - Hiển thị thông tin
+  - Cập nhật tiến độ
+  - Kiểm tra hoàn thành
+- Class `ListGoal`:
+  - Create
+  - Read
+  - Edit
+  - Delete
+
+## Cấu trúc source chính
 
 ```bash
-lib/cau2_utils/generic.dart
-```
-
----
-
-### ✨ Câu 3: Xây dựng Class Habit
-
-📄 File:
-
-```bash
-lib/cau3_models/habit.dart
-```
-
-#### 🔹 Thuộc tính:
-
-* `id`
-* `tenHabit`
-* `tanSuat`
-* `thoiGianNhac`
-
-#### 🔹 Phương thức:
-
-* `display()`
-* `update(...)`
-
-👉 Class Habit đại diện cho một thói quen cụ thể của người dùng.
-
----
-
-### ✨ Câu 4: CRUD với ListHabit
-
-📄 File:
-
-```bash
-lib/cau4_managers/list_habit.dart
-```
-
-#### 🔹 Danh sách:
-
-```dart
-List<Habit> habits = [];
-```
-
-#### 🔹 Chức năng:
-
-* ✅ Create: `addHabit()`
-* ✅ Read: `getAllHabits()`
-* ✅ Update: `updateHabit()`
-* ⭐ Delete: `deleteHabit()` (mở rộng)
-
-👉 Class này đóng vai trò quản lý danh sách Habit và xử lý logic dữ liệu.
-
----
-## Bài kiểm tra giữa kỳ
-
-## 📌 Phân công công việc (Câu 1)
-
-Nhóm đã thảo luận và phân chia các màn hình (Screens) để phát triển ứng dụng như sau:
-
-### 👥 Số lượng thành viên: 2
-
-### 🔹 Nguyễn Minh Ánh
-- Phụ trách xây dựng màn hình **Content**
-- Thiết kế UI gồm:
-  - Banner
-  - List
-  - Grid
-- Tích hợp hình ảnh minh họa (Image Network)
-
-### 🔹 Mai Ngọc Linh
-- Phụ trách xây dựng màn hình **About**
-- Hiển thị thông tin nhóm và mô tả ứng dụng
-
----
-
-### 🧭 Màn hình Home
-- Được phát triển dựa trên template (UI) tương tự Content
-- Hiển thị:
-  - Thông tin người dùng
-  - Streak
-  - Nhiệm vụ trong ngày
-
----
-
-### 🔄 Điều hướng
-- Sử dụng **Bottom Navigation Bar**
-- Gồm 3 màn hình:
-  - Home
-  - Content
-  - About
-
----
-
-### 📂 Quản lý mã nguồn
-- Mỗi thành viên thực hiện commit phần việc của mình lên GitHub
-- Lịch sử commit thể hiện rõ quá trình làm việc của từng thành viên
-## 🖥️ Giao diện
-
-📄 File chính:
-
-```bash
-lib/main.dart
-```
-
-Ứng dụng hiển thị:
-
-* Thông tin người dùng
-* Danh sách Goal
-* Danh sách Habit
-
-👉 Giao diện đơn giản, tập trung vào hiển thị dữ liệu.
-
----
-
-## ⚙️ Công nghệ sử dụng
-
-* 💙 Flutter
-* 🎯 Dart
-* 🧠 OOP (Object-Oriented Programming)
-* 🐳 Dev Container (Docker)
-* ☁️ GitHub Codespaces
-
----
-
-## 🛠️ Chức năng chính
-
-* ✅ Tạo và quản lý mục tiêu
-* ✅ Theo dõi tiến độ
-* ✅ Quản lý thói quen
-* ✅ Hiển thị dữ liệu rõ ràng
-
----
-
-## 📂 Cấu trúc dự án
-
-```bash
-lib/
-│
-├── cau2_utils/
-│   └── generic.dart
-│
-├── cau3_models/
-│   └── habit.dart
-│
-├── cau4_managers/
-│   └── list_habit.dart
-│
-├── front/
-│   └── BotNavi.dart
-│
-├── pages/
-│   └── content_page.dart
-│
+myproject/lib/
+├── main.dart
 ├── MyHomePage.dart
-├── MyContactPage.dart
-│
-└── main.dart
+├── firebase_options.dart
+├── goal.dart
+├── list_goal.dart
+├── navigation/
+│   └── home_page_navigation.dart
+├── pages/
+│   ├── auth_pages.dart
+│   ├── create_habit_flow.dart
+│   ├── insight_general_page.dart
+│   ├── insight_page.dart
+│   ├── reflection_page.dart
+│   └── settings_pages.dart
+└── theme/
+    └── app_design.dart
 ```
 
----
-
-
-## ▶️ Cách chạy project
+## Cách chạy project
 
 ```bash
+cd myproject
 flutter pub get
-flutter run -d web-server
+flutter run
 ```
 
----
+Chạy web server:
 
-## 📝 Ghi chú
+```bash
+flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8080
+```
 
-* Dự án được phát triển trên Dev Container
-* Có thể chạy trực tiếp trên GitHub Codespaces
-* Tập trung vào logic OOP hơn là UI
+Build web:
 
----
+```bash
+flutter build web
+```
 
-## 👨‍💻 Tác giả
+## Kiểm thử
 
-**Nhóm N03 – GoalFlow Project**
+Chạy test:
 
----
+```bash
+flutter test
+```
+
+Test hiện tại kiểm tra:
+
+- App render được dashboard Daily.
+- Hiển thị streak và task.
+- Bấm nút `+` mở bottom sheet tạo mới.
+
+## Ghi chú
+
+- Một số hình minh họa trong Figma hiện được dựng bằng icon/custom widget thay vì asset gốc.
+- Để UI sát pixel hơn, cần export asset từ Figma vào project và khai báo trong `pubspec.yaml`.
+- Phần dữ liệu hiện chủ yếu là dữ liệu mẫu trên UI; Firestore dependency đã có nhưng chưa mapping đầy đủ toàn bộ object-document vào giao diện.
 
