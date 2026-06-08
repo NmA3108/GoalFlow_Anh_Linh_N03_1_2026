@@ -4,6 +4,7 @@ import '../theme/app_design.dart';
 import 'create_habit_flow.dart';
 import 'insight_page.dart';
 import 'reflection_page.dart';
+import 'settings_pages.dart';
 
 class InsightGeneralPage extends StatefulWidget {
   const InsightGeneralPage({super.key});
@@ -331,7 +332,10 @@ class _PremiumStatsCard extends StatelessWidget {
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PricePage()),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.violet,
                 foregroundColor: Colors.white,
