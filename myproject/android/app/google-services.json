@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "883644336879",
+    "project_id": "goalflow-anh-linh-2026",
+    "storage_bucket": "goalflow-anh-linh-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883644336879:android:082e76a2db5c58d271e91a",
+        "android_client_info": {
+          "package_name": "com.example.myproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0FZzQGJENx-da3AM2R7ETe-UX4adPEEo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

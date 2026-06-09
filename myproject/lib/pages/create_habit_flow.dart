@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../data/app_repository.dart';
+import '../services/reminder_service.dart';
 import '../theme/app_design.dart';
 
 class CreateHabitFlowPage extends StatefulWidget {
@@ -17,6 +19,8 @@ class _CreateHabitFlowPageState extends State<CreateHabitFlowPage> {
   bool _daily = true;
   final Set<String> _days = {'Thứ Ba', 'Thứ Năm', 'Thứ Bảy'};
   bool _reminder = true;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -25,15 +29,70 @@ class _CreateHabitFlowPageState extends State<CreateHabitFlowPage> {
     super.dispose();
   }
 
-  void _next() {
+  Future<void> _next() async {
     if (_step < 4) {
       setState(() => _step++);
       return;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã tạo thói quen mới')));
-    Navigator.pop(context);
+
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập tên thói quen')),
+      );
+      setState(() => _step = 0);
+      return;
+    }
+
+    if (!AppRepository.isFirebaseReady) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Firebase chưa được khởi tạo')),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      final days = _daily ? const ['Mỗi ngày'] : _days.toList();
+      final reminderTime = _formatTime(_reminderTime);
+      final permissionGranted =
+          !_reminder || await ReminderService.instance.requestPermission();
+      final habitId = await AppRepository().createHabit(
+        name: name,
+        area: _area,
+        days: days,
+        reason: _reasonController.text.trim(),
+        reminderEnabled: _reminder,
+        reminderTime: _reminder ? reminderTime : '',
+      );
+      if (_reminder && permissionGranted) {
+        await ReminderService.instance.scheduleHabit(
+          habitId: habitId,
+          habitName: name,
+          days: days,
+          time: reminderTime,
+        );
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _reminder && !permissionGranted
+                ? 'Đã lưu thói quen, nhưng chưa được cấp quyền thông báo'
+                : 'Đã lưu thói quen và thiết lập lời nhắc',
+          ),
+        ),
+      );
+      Navigator.pop(context, true);
+    } on Exception catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể lưu thói quen: $error')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   void _back() {
@@ -85,8 +144,12 @@ class _CreateHabitFlowPageState extends State<CreateHabitFlowPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
             child: PrimaryButton(
-              label: _step == 4 ? 'Hoàn thành' : 'Tiếp tục',
-              onPressed: _next,
+              label: _isSaving
+                  ? 'Đang lưu...'
+                  : _step == 4
+                  ? 'Hoàn thành'
+                  : 'Tiếp tục',
+              onPressed: _isSaving ? () {} : _next,
             ),
           ),
         ],
@@ -119,10 +182,32 @@ class _CreateHabitFlowPageState extends State<CreateHabitFlowPage> {
       default:
         return _ReminderStep(
           reminder: _reminder,
+          time: _reminderTime,
           onToggle: () => setState(() => _reminder = !_reminder),
+          onSelectTime: _selectReminderTime,
         );
     }
   }
+
+  Future<void> _selectReminderTime() async {
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+      helpText: 'Chọn giờ nhắc',
+      cancelText: 'Hủy',
+      confirmText: 'Chọn',
+    );
+    if (selected != null && mounted) {
+      setState(() {
+        _reminderTime = selected;
+        _reminder = true;
+      });
+    }
+  }
+
+  String _formatTime(TimeOfDay time) =>
+      '${time.hour.toString().padLeft(2, '0')}:'
+      '${time.minute.toString().padLeft(2, '0')}';
 }
 
 class _ProgressDots extends StatelessWidget {
@@ -429,10 +514,17 @@ class _ReasonStep extends StatelessWidget {
 }
 
 class _ReminderStep extends StatelessWidget {
-  const _ReminderStep({required this.reminder, required this.onToggle});
+  const _ReminderStep({
+    required this.reminder,
+    required this.time,
+    required this.onToggle,
+    required this.onSelectTime,
+  });
 
   final bool reminder;
+  final TimeOfDay time;
   final VoidCallback onToggle;
+  final VoidCallback onSelectTime;
 
   @override
   Widget build(BuildContext context) {
@@ -454,50 +546,54 @@ class _ReminderStep extends StatelessWidget {
           style: TextStyle(color: Colors.white.withOpacity(.42)),
         ),
         const SizedBox(height: 36),
-        Container(
-          height: 200,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2B136C).withOpacity(.82),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '08     07     PM',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(.45),
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 13),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.cream,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  '09     08    AM',
-                  textAlign: TextAlign.center,
+        GestureDetector(
+          onTap: onSelectTime,
+          child: Container(
+            height: 200,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2B136C).withOpacity(.82),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Nhấn để chọn giờ',
                   style: TextStyle(
-                    color: Color(0xFF242021),
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
+                    color: Colors.white.withOpacity(.45),
+                    fontSize: 20,
                   ),
                 ),
-              ),
-              const SizedBox(height: 13),
-              Text(
-                '10     09     PM',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(.45),
-                  fontSize: 20,
+                const SizedBox(height: 13),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.cream,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '${time.hour.toString().padLeft(2, '0')}:'
+                    '${time.minute.toString().padLeft(2, '0')}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF242021),
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 13),
+                Text(
+                  reminder ? 'Lời nhắc đang bật' : 'Lời nhắc đang tắt',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(.45),
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 34),

@@ -199,8 +199,24 @@ Màn hình Premium gồm:
 - Đã khai báo dependencies:
   - `firebase_core`
   - `cloud_firestore`
-- Firebase config hiện có cho iOS, macOS và Windows.
-- Với platform chưa cấu hình Firebase, app bỏ qua init để không crash khi chạy UI.
+- Firebase config hiện có cho Android, Web, iOS, macOS và Windows.
+- Flow tạo thói quen lưu dữ liệu vào collection `habits`.
+- Home đọc danh sách thói quen realtime bằng `StreamBuilder`.
+- Bấm task cập nhật trường `completed` trên Firestore.
+
+Document trong collection `habits`:
+
+```text
+name
+area
+days
+reason
+reminderEnabled
+reminderTime
+completed
+createdAt
+completedAt
+```
 
 ### 13. OOP / Model
 
@@ -280,4 +296,3 @@ Test hiện tại kiểm tra:
 - Một số hình minh họa trong Figma hiện được dựng bằng icon/custom widget thay vì asset gốc.
 - Để UI sát pixel hơn, cần export asset từ Figma vào project và khai báo trong `pubspec.yaml`.
 - Phần dữ liệu hiện chủ yếu là dữ liệu mẫu trên UI; Firestore dependency đã có nhưng chưa mapping đầy đủ toàn bộ object-document vào giao diện.
-

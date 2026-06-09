@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../MyHomePage.dart';
+import '../data/app_models.dart';
+import '../data/app_repository.dart';
 import '../theme/app_design.dart';
 import 'create_habit_flow.dart';
 import 'insight_general_page.dart';
@@ -18,6 +20,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
   final Set<String> _emotions = {'Mơ hồ', 'Hạnh phúc', 'Biết ơn'};
   final Set<String> _activities = {'Tình yêu', 'Học', 'Việc nhà'};
   final _noteController = TextEditingController();
+  int _moodScore = 4;
 
   @override
   void dispose() {
@@ -73,7 +76,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
   Widget _buildContent() {
     switch (_page) {
       case 0:
-        return _ReviewPage(onStart: () => setState(() => _page = 1));
+        return _LiveReviewPage(onStart: () => setState(() => _page = 1));
       case 1:
         return _EmotionPage(selected: _emotions, onToggle: _toggleEmotion);
       case 2:
@@ -81,17 +84,46 @@ class _ReflectionPageState extends State<ReflectionPage> {
       default:
         return _NotePage(
           controller: _noteController,
-          onDone: () => Navigator.pop(context),
+          onDone: () async {
+            await AppRepository().saveReflection(
+              moodScore: _moodScore,
+              emotions: _emotions.toList(),
+              activities: _activities.toList(),
+              note: _noteController.text.trim(),
+            );
+            if (!mounted) return;
+            setState(() => _page = 0);
+          },
         );
     }
   }
 
   void _toggleEmotion(String value) {
-    setState(
-      () => _emotions.contains(value)
+    const positive = {
+      'Tự hào',
+      'Bình yên',
+      'Hưng phấn',
+      'Hạnh phúc',
+      'Biết ơn',
+      'Yêu thương',
+      'Sáng tạo',
+      'Quyết tâm',
+    };
+    const negative = {
+      'Buồn',
+      'Bất ổn',
+      'Bất lực',
+      'Lo âu',
+      'Tức giận',
+      'Tự ti',
+    };
+    setState(() {
+      _emotions.contains(value)
           ? _emotions.remove(value)
-          : _emotions.add(value),
-    );
+          : _emotions.add(value);
+      if (positive.contains(value)) _moodScore = 5;
+      if (negative.contains(value)) _moodScore = 2;
+    });
   }
 
   void _toggleActivity(String value) {
@@ -103,10 +135,41 @@ class _ReflectionPageState extends State<ReflectionPage> {
   }
 }
 
-class _ReviewPage extends StatelessWidget {
-  const _ReviewPage({required this.onStart});
+class _LiveReviewPage extends StatelessWidget {
+  const _LiveReviewPage({required this.onStart});
 
   final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppRepository.isFirebaseReady) {
+      return _ReviewPage(onStart: onStart);
+    }
+    return StreamBuilder<List<ReflectionRecord>>(
+      stream: AppRepository().watchReflections(),
+      builder: (context, snapshot) {
+        final items = [...?snapshot.data]
+          ..sort((a, b) => b.dateKey.compareTo(a.dateKey));
+        return _ReviewPage(
+          onStart: onStart,
+          latest: items.isEmpty ? null : items.first,
+          reflections: items,
+        );
+      },
+    );
+  }
+}
+
+class _ReviewPage extends StatelessWidget {
+  const _ReviewPage({
+    required this.onStart,
+    this.latest,
+    this.reflections = const [],
+  });
+
+  final VoidCallback onStart;
+  final ReflectionRecord? latest;
+  final List<ReflectionRecord> reflections;
 
   @override
   Widget build(BuildContext context) {
@@ -179,18 +242,18 @@ class _ReviewPage extends StatelessWidget {
           radius: 12,
           color: const Color(0xFF20147A).withOpacity(.86),
           child: Row(
-            children: const [
+            children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tâm trạng của bạn vào 28-04-2025',
+                      'Tâm trạng của bạn vào ${latest?.dateKey ?? '--'}',
                       style: TextStyle(color: Color(0xFFBDB4E7)),
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Tuyệt vời',
+                      _moodLabel(latest?.moodScore ?? 3),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -201,7 +264,7 @@ class _ReviewPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '3',
+                '${latest?.moodScore ?? 0}',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 26,
@@ -223,7 +286,7 @@ class _ReviewPage extends StatelessWidget {
           color: const Color(0xFFD7CCF0).withOpacity(.78),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'Suy nghĩ của bạn',
                 style: TextStyle(
@@ -233,7 +296,9 @@ class _ReviewPage extends StatelessWidget {
               ),
               SizedBox(height: 14),
               Text(
-                'Tôi không biết',
+                latest?.note.isNotEmpty == true
+                    ? latest!.note
+                    : 'Chưa có ghi chú',
                 style: TextStyle(color: Color(0xFF211C35), fontSize: 17),
               ),
               SizedBox(height: 18),
@@ -245,7 +310,7 @@ class _ReviewPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              _TagRow(tags: ['Tự hào', 'Hưng phấn', 'Bất ổn', 'Biết ơn']),
+              _TagRow(tags: latest?.emotions ?? const []),
               SizedBox(height: 18),
               Text(
                 'Hoạt động của bạn',
@@ -255,13 +320,11 @@ class _ReviewPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _ActivityMini(icon: '😡', label: 'Thể thao'),
-                  _ActivityMini(icon: '😡', label: 'Tình yêu'),
-                  _ActivityMini(icon: '😡', label: 'Bạn bè'),
-                ],
+              Wrap(
+                spacing: 16,
+                children: (latest?.activities ?? const [])
+                    .map((item) => _ActivityMini(icon: '🙂', label: item))
+                    .toList(),
               ),
             ],
           ),
@@ -272,7 +335,7 @@ class _ReviewPage extends StatelessWidget {
           color: const Color(0xFF251B72).withOpacity(.82),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'Tuần của bạn',
                 style: TextStyle(
@@ -281,7 +344,7 @@ class _ReviewPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 14),
-              _WeekBars(),
+              _WeekBars(reflections: reflections),
             ],
           ),
         ),
@@ -290,9 +353,9 @@ class _ReviewPage extends StatelessWidget {
           radius: 12,
           color: AppColors.violet.withOpacity(.82),
           child: Row(
-            children: const [
+            children: [
               Text(
-                'Tâm trạng trung bình\nKhá vui vẻ',
+                'Tâm trạng trung bình\n${_moodLabel(_averageMood(reflections).round())}',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -302,7 +365,7 @@ class _ReviewPage extends StatelessWidget {
               ),
               Spacer(),
               Text(
-                '4.0',
+                _averageMood(reflections).toStringAsFixed(1),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -651,11 +714,22 @@ class _ActivityMini extends StatelessWidget {
 }
 
 class _WeekBars extends StatelessWidget {
-  const _WeekBars();
+  const _WeekBars({required this.reflections});
+
+  final List<ReflectionRecord> reflections;
 
   @override
   Widget build(BuildContext context) {
-    final values = [1, 3, 4, 0, 0, 5, 0];
+    final now = DateTime.now();
+    final start = now.subtract(Duration(days: now.weekday - 1));
+    final byDate = {
+      for (final item in reflections) item.dateKey: item.moodScore,
+    };
+    final values = List<int>.generate(
+      7,
+      (index) =>
+          byDate[AppRepository.dateKey(start.add(Duration(days: index)))] ?? 0,
+    );
     final colors = [
       Colors.red,
       Colors.orange,
@@ -696,4 +770,20 @@ class _WeekBars extends StatelessWidget {
       }),
     );
   }
+}
+
+String _moodLabel(int score) {
+  return switch (score) {
+    <= 1 => 'Tệ',
+    2 => 'Hơi buồn',
+    3 => 'Bình thường',
+    4 => 'Khá vui vẻ',
+    _ => 'Tuyệt vời',
+  };
+}
+
+double _averageMood(List<ReflectionRecord> reflections) {
+  if (reflections.isEmpty) return 0;
+  return reflections.fold<int>(0, (sum, item) => sum + item.moodScore) /
+      reflections.length;
 }

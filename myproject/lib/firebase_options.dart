@@ -17,17 +17,11 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -54,7 +48,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'goalflow-anh-linh-2026.firebasestorage.app',
     iosBundleId: 'com.example.myproject',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA9x4mAEDbKa1juh_MaYB3dWoI2SEQQdk8',
     appId: '1:883644336879:ios:40f4dd781445580a71e91a',
@@ -72,5 +65,22 @@ class DefaultFirebaseOptions {
     authDomain: 'goalflow-anh-linh-2026.firebaseapp.com',
     storageBucket: 'goalflow-anh-linh-2026.firebasestorage.app',
     measurementId: 'G-VBV56M0XQB',
+  );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBNFiIbwXrJ7O2bV-pc1ljlR6iU7H5naOs',
+    appId: '1:883644336879:web:d4467a2f00fa16af71e91a',
+    messagingSenderId: '883644336879',
+    projectId: 'goalflow-anh-linh-2026',
+    authDomain: 'goalflow-anh-linh-2026.firebaseapp.com',
+    storageBucket: 'goalflow-anh-linh-2026.firebasestorage.app',
+    measurementId: 'G-VBV56M0XQB',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyB0FZzQGJENx-da3AM2R7ETe-UX4adPEEo',
+    appId: '1:883644336879:android:082e76a2db5c58d271e91a',
+    messagingSenderId: '883644336879',
+    projectId: 'goalflow-anh-linh-2026',
+    storageBucket: 'goalflow-anh-linh-2026.firebasestorage.app',
   );
 }

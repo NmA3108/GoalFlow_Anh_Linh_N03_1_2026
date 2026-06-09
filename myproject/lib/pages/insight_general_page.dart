@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../MyHomePage.dart';
+import '../data/app_models.dart';
+import '../data/app_repository.dart';
 import '../theme/app_design.dart';
 import 'create_habit_flow.dart';
 import 'insight_page.dart';
@@ -42,7 +44,7 @@ class _InsightGeneralPageState extends State<InsightGeneralPage> {
                   onIndividual: () => setState(() => _individual = true),
                 ),
                 const SizedBox(height: 22),
-                _individual ? const _IndividualStats() : const _GeneralStats(),
+                _LiveStatistics(individual: _individual),
               ],
             ),
           ),
@@ -69,6 +71,45 @@ class _InsightGeneralPageState extends State<InsightGeneralPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LiveStatistics extends StatelessWidget {
+  const _LiveStatistics({required this.individual});
+
+  final bool individual;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppRepository.isFirebaseReady) {
+      const fallback = HabitStatistics(
+        currentStreak: 0,
+        longestStreak: 0,
+        totalMinutes: 0,
+        weeklyCompleted: [0, 0, 0, 0, 0, 0, 0],
+        averageMood: 0,
+      );
+      return individual
+          ? const _IndividualStats(stats: fallback)
+          : const _GeneralStats(stats: fallback);
+    }
+    return StreamBuilder<List<HabitLog>>(
+      stream: AppRepository().watchLogs(),
+      builder: (context, logSnapshot) {
+        return StreamBuilder<List<ReflectionRecord>>(
+          stream: AppRepository().watchReflections(),
+          builder: (context, reflectionSnapshot) {
+            final stats = AppRepository.calculateStatistics(
+              logSnapshot.data ?? const <HabitLog>[],
+              reflectionSnapshot.data ?? const <ReflectionRecord>[],
+            );
+            return individual
+                ? _IndividualStats(stats: stats)
+                : _GeneralStats(stats: stats);
+          },
+        );
+      },
     );
   }
 }
@@ -142,22 +183,26 @@ class _TabButton extends StatelessWidget {
 }
 
 class _GeneralStats extends StatelessWidget {
-  const _GeneralStats();
+  const _GeneralStats({required this.stats});
+
+  final HabitStatistics stats;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
-        _HabitOverviewCard(),
-        SizedBox(height: 20),
-        _PremiumStatsCard(),
+      children: [
+        _HabitOverviewCard(stats: stats),
+        const SizedBox(height: 20),
+        const _PremiumStatsCard(),
       ],
     );
   }
 }
 
 class _HabitOverviewCard extends StatelessWidget {
-  const _HabitOverviewCard();
+  const _HabitOverviewCard({required this.stats});
+
+  final HabitStatistics stats;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +251,7 @@ class _HabitOverviewCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    i == 0 ? '0' : '1',
+                    '${stats.weeklyCompleted[i]}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -239,6 +284,14 @@ class _HabitOverviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 28),
+          Text(
+            'Chuỗi hiện tại: ${stats.currentStreak} ngày  •  Tâm trạng TB: ${stats.averageMood.toStringAsFixed(1)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 18),
           const Text(
             'TÂM TRẠNG HÀNG NGÀY',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
@@ -361,13 +414,15 @@ class _PremiumStatsCard extends StatelessWidget {
 }
 
 class _IndividualStats extends StatelessWidget {
-  const _IndividualStats();
+  const _IndividualStats({required this.stats});
+
+  final HabitStatistics stats;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
-        Text(
+      children: [
+        const Text(
           'Luyện nghe tiếng Anh',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -376,27 +431,27 @@ class _IndividualStats extends StatelessWidget {
             fontWeight: FontWeight.w900,
           ),
         ),
-        SizedBox(height: 26),
-        _StreakSummary(),
-        SizedBox(height: 20),
-        _TrackingHint(),
-        SizedBox(height: 20),
-        _CalendarCard(),
-        SizedBox(height: 16),
-        _InfoCard(
+        const SizedBox(height: 26),
+        _StreakSummary(streak: stats.currentStreak),
+        const SizedBox(height: 20),
+        const _TrackingHint(),
+        const SizedBox(height: 20),
+        const _CalendarCard(),
+        const SizedBox(height: 16),
+        const _InfoCard(
           title: 'Bạn theo dõi thói quen này vào:',
           body:
               'Thứ Ba    Thứ Năm    Thứ Bảy\n\nKhông làm vào ngày mở không mất chuỗi.\nKhông ảnh hưởng đến chuỗi của bạn.',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _InfoCard(
           title: 'Thời gian đã dành',
-          body: 'Bạn đã dành 120 phút\ncho thói quen này',
+          body: 'Bạn đã dành ${stats.totalMinutes} phút\ncho các thói quen',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _InfoCard(
           title: 'Chuỗi dài nhất',
-          body: 'Chuỗi dài nhất của bạn là 10 ngày',
+          body: 'Chuỗi dài nhất của bạn là ${stats.longestStreak} ngày',
         ),
       ],
     );
@@ -404,24 +459,26 @@ class _IndividualStats extends StatelessWidget {
 }
 
 class _StreakSummary extends StatelessWidget {
-  const _StreakSummary();
+  const _StreakSummary({required this.streak});
+
+  final int streak;
 
   @override
   Widget build(BuildContext context) {
     return GlassCard(
       radius: 8,
       child: Row(
-        children: const [
+        children: [
           Text(
-            '10',
-            style: TextStyle(
+            '$streak',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(width: 18),
-          Text(
+          const SizedBox(width: 18),
+          const Text(
             'Chuỗi ngày',
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),

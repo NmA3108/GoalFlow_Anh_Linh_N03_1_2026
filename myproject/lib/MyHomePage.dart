@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'data/app_models.dart';
+import 'data/app_repository.dart';
 import 'pages/create_habit_flow.dart';
 import 'pages/insight_general_page.dart';
 import 'pages/insight_page.dart';
@@ -102,47 +104,14 @@ class MyHomePage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
-                _StreakCard(
+                _LiveStreakCard(
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const StreakInfoPage()),
                   ),
                 ),
                 const SizedBox(height: 30),
-                const _SectionTitle('Ngày hôm nay'),
-                const SizedBox(height: 10),
-                _TaskCard(
-                  time: '08:40',
-                  title: 'Học Tiếng Anh',
-                  icon: Icons.psychology_alt,
-                  active: true,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const EditHabitPage()),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Row(
-                  children: [
-                    const _SectionTitle('Nhiệm vụ hoàn thành'),
-                    const Spacer(),
-                    Icon(
-                      Icons.keyboard_arrow_up,
-                      color: Colors.white.withOpacity(.85),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _TaskCard(
-                  time: '08:40',
-                  title: 'Học Tiếng Anh',
-                  icon: Icons.fitness_center,
-                  active: false,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const EditHabitPage()),
-                  ),
-                ),
+                const _HabitSections(),
               ],
             ),
           ),
@@ -165,6 +134,170 @@ class MyHomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _HabitSections extends StatelessWidget {
+  const _HabitSections();
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppRepository.isFirebaseReady) {
+      return const _FallbackHabitSections();
+    }
+
+    return StreamBuilder<List<HabitRecord>>(
+      stream: AppRepository().watchHabits(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Column(
+            children: [
+              const _FallbackHabitSections(),
+              const SizedBox(height: 12),
+              Text(
+                'Không thể đọc Firestore: ${snapshot.error}',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(color: AppColors.mint),
+            ),
+          );
+        }
+
+        final habits = snapshot.data!;
+        if (habits.isEmpty) {
+          return GlassCard(
+            child: const Text(
+              'Chưa có thói quen. Nhấn dấu + để tạo thói quen đầu tiên.',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
+
+        return StreamBuilder<List<HabitLog>>(
+          stream: AppRepository().watchLogs(),
+          builder: (context, logSnapshot) {
+            final logs = logSnapshot.data ?? const <HabitLog>[];
+            final today = AppRepository.dateKey(DateTime.now());
+            final completedIds = logs
+                .where((log) => log.completed && log.dateKey == today)
+                .map((log) => log.habitId)
+                .toSet();
+            final pending = habits
+                .where((habit) => !completedIds.contains(habit.id))
+                .toList();
+            final completed = habits
+                .where((habit) => completedIds.contains(habit.id))
+                .toList();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Ngày hôm nay'),
+                const SizedBox(height: 10),
+                ...pending.map(
+                  (habit) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _FirestoreTaskCard(habit: habit, completed: false),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const _SectionTitle('Nhiệm vụ hoàn thành'),
+                    const Spacer(),
+                    Icon(
+                      Icons.keyboard_arrow_up,
+                      color: Colors.white.withOpacity(.85),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ...completed.map(
+                  (habit) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _FirestoreTaskCard(habit: habit, completed: true),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _FirestoreTaskCard extends StatelessWidget {
+  const _FirestoreTaskCard({required this.habit, required this.completed});
+
+  final HabitRecord habit;
+  final bool completed;
+
+  @override
+  Widget build(BuildContext context) {
+    return _TaskCard(
+      time: habit.reminderTime.isEmpty ? '--:--' : habit.reminderTime,
+      title: habit.name,
+      icon: habit.area.contains('Tâm')
+          ? Icons.psychology_alt
+          : Icons.track_changes,
+      active: !completed,
+      onTap: () async {
+        await AppRepository().toggleHabitForToday(habit, !completed);
+      },
+    );
+  }
+}
+
+class _FallbackHabitSections extends StatelessWidget {
+  const _FallbackHabitSections();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionTitle('Ngày hôm nay'),
+        const SizedBox(height: 10),
+        _TaskCard(
+          time: '08:40',
+          title: 'Học Tiếng Anh',
+          icon: Icons.psychology_alt,
+          active: true,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const EditHabitPage()),
+          ),
+        ),
+        const SizedBox(height: 28),
+        Row(
+          children: [
+            const _SectionTitle('Nhiệm vụ hoàn thành'),
+            const Spacer(),
+            Icon(Icons.keyboard_arrow_up, color: Colors.white.withOpacity(.85)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _TaskCard(
+          time: '08:40',
+          title: 'Học Tiếng Anh',
+          icon: Icons.fitness_center,
+          active: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const EditHabitPage()),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -203,9 +336,15 @@ class _SheetAction extends StatelessWidget {
 }
 
 class _StreakCard extends StatelessWidget {
-  const _StreakCard({required this.onTap});
+  const _StreakCard({
+    required this.onTap,
+    required this.streak,
+    required this.streakDates,
+  });
 
   final VoidCallback onTap;
+  final int streak;
+  final List<DateTime> streakDates;
 
   @override
   Widget build(BuildContext context) {
@@ -218,20 +357,31 @@ class _StreakCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '2 ngày liên tiếp',
-                  style: TextStyle(
+                Text(
+                  '$streak ngày liên tiếp',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 15),
-                Row(
-                  children: const [
-                    _DayDot(day: 'T2'),
-                    SizedBox(width: 16),
-                    _DayDot(day: 'T3'),
-                  ],
+                SizedBox(
+                  height: 52,
+                  child: streakDates.isEmpty
+                      ? const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Chưa có ngày hoàn thành',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        )
+                      : ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: streakDates.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 16),
+                          itemBuilder: (context, index) =>
+                              _DayDot(date: streakDates[index]),
+                        ),
                 ),
               ],
             ),
@@ -260,6 +410,39 @@ class _StreakCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LiveStreakCard extends StatelessWidget {
+  const _LiveStreakCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppRepository.isFirebaseReady) {
+      final today = DateTime.now();
+      return _StreakCard(
+        onTap: onTap,
+        streak: 2,
+        streakDates: [today.subtract(const Duration(days: 1)), today],
+      );
+    }
+    return StreamBuilder<List<HabitLog>>(
+      stream: AppRepository().watchLogs(),
+      builder: (context, snapshot) {
+        final logs = snapshot.data ?? const <HabitLog>[];
+        final stats = AppRepository.calculateStatistics(
+          logs,
+          const <ReflectionRecord>[],
+        );
+        return _StreakCard(
+          onTap: onTap,
+          streak: stats.currentStreak,
+          streakDates: AppRepository.currentStreakDates(logs),
+        );
+      },
     );
   }
 }
@@ -379,9 +562,10 @@ class StreakInfoPage extends StatelessWidget {
 }
 
 class _DayDot extends StatelessWidget {
-  const _DayDot({required this.day});
+  const _DayDot({this.date, this.day});
 
-  final String day;
+  final DateTime? date;
+  final String? day;
 
   @override
   Widget build(BuildContext context) {
@@ -389,10 +573,23 @@ class _DayDot extends StatelessWidget {
       children: [
         const Icon(Icons.check_circle, color: AppColors.mint, size: 27),
         const SizedBox(height: 5),
-        Text(day, style: const TextStyle(color: Colors.white, fontSize: 13)),
+        Text(
+          day ?? _weekdayLabel(date!.weekday),
+          style: const TextStyle(color: Colors.white, fontSize: 13),
+        ),
       ],
     );
   }
+
+  String _weekdayLabel(int weekday) => switch (weekday) {
+    DateTime.monday => 'T2',
+    DateTime.tuesday => 'T3',
+    DateTime.wednesday => 'T4',
+    DateTime.thursday => 'T5',
+    DateTime.friday => 'T6',
+    DateTime.saturday => 'T7',
+    _ => 'CN',
+  };
 }
 
 class _SectionTitle extends StatelessWidget {

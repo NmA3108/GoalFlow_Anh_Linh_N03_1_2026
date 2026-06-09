@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../data/app_models.dart';
+import '../data/app_repository.dart';
 import '../theme/app_design.dart';
 import 'auth_pages.dart';
 
@@ -67,17 +69,7 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _SettingsSection(
-            title: 'Tài khoản',
-            children: const [
-              Text('Email của bạn', style: TextStyle(color: Color(0xFFD6D0F4))),
-              SizedBox(height: 8),
-              Text(
-                'maingoclinh412005@gmail.com',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
+          const _UserAccountSection(),
           const SizedBox(height: 20),
           _SettingsSection(
             title: 'Cài đặt chung',
@@ -157,6 +149,42 @@ class SettingsPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _UserAccountSection extends StatelessWidget {
+  const _UserAccountSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AppUser>(
+      stream: AppRepository().watchUser(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        return _SettingsSection(
+          title: 'Tài khoản',
+          children: [
+            Text(
+              user?.displayName ?? 'Đang tải...',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Email của bạn',
+              style: TextStyle(color: Color(0xFFD6D0F4)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              user?.email ?? '',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        );
+      },
     );
   }
 }

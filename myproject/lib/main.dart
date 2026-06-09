@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import 'MyHomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'data/app_repository.dart';
+import 'services/reminder_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,10 +13,18 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await AppRepository().ensureSeedData();
   } on UnsupportedError catch (error) {
     debugPrint('Firebase is not configured for this platform: $error');
   } catch (error) {
     debugPrint('Firebase initialization skipped: $error');
+  }
+  if (!kIsWeb) {
+    try {
+      await ReminderService.instance.initialize();
+    } catch (error) {
+      debugPrint('Reminder initialization skipped: $error');
+    }
   }
   runApp(const MyApp());
 }
