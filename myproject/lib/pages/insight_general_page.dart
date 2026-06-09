@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../MyHomePage.dart';
 import '../theme/app_design.dart';
 import 'create_habit_flow.dart';
 import 'insight_page.dart';
 import 'reflection_page.dart';
+import 'settings_pages.dart';
 
 class InsightGeneralPage extends StatefulWidget {
   const InsightGeneralPage({super.key});
@@ -46,7 +48,11 @@ class _InsightGeneralPageState extends State<InsightGeneralPage> {
           ),
           AppBottomNav(
             index: 1,
-            onHome: () => Navigator.pop(context),
+            onHome: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const MyHomePage()),
+              (route) => false,
+            ),
             onInsight: () {},
             onCreate: () => Navigator.push(
               context,
@@ -331,7 +337,10 @@ class _PremiumStatsCard extends StatelessWidget {
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PricePage()),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.violet,
                 foregroundColor: Colors.white,

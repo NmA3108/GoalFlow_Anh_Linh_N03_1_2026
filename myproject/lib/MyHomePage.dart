@@ -102,7 +102,12 @@ class MyHomePage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
-                _StreakCard(),
+                _StreakCard(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const StreakInfoPage()),
+                  ),
+                ),
                 const SizedBox(height: 30),
                 const _SectionTitle('Ngày hôm nay'),
                 const SizedBox(height: 10),
@@ -198,6 +203,10 @@ class _SheetAction extends StatelessWidget {
 }
 
 class _StreakCard extends StatelessWidget {
+  const _StreakCard({required this.onTap});
+
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
     return GlassCard(
@@ -235,18 +244,135 @@ class _StreakCard extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               const SizedBox(height: 15),
-              Container(
-                width: 56,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: AppColors.violet,
-                  borderRadius: BorderRadius.circular(18),
+              GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  width: 56,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: AppColors.violet,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(Icons.arrow_forward, color: Colors.white),
                 ),
-                child: const Icon(Icons.arrow_forward, color: Colors.white),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class StreakInfoPage extends StatelessWidget {
+  const StreakInfoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBackground(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  'May 30, 2024',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            GlassCard(
+              radius: 9,
+              color: const Color(0xFFEEDCFF),
+              child: Row(
+                children: const [
+                  _DayDot(day: 'Thứ Hai'),
+                  SizedBox(width: 24),
+                  _DayDot(day: 'Thứ Ba'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            GlassCard(
+              radius: 12,
+              color: AppColors.violet.withOpacity(.82),
+              child: const Text(
+                'Bằng cách vượt qua những vấn đề của chính mình để quan tâm đến người khác, bạn sẽ có được sức mạnh nội tâm, sự tự tin, lòng can đảm và một cảm giác bình an lớn lao hơn\n\n~ Dalai Lama',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  height: 1.45,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            GlassCard(
+              radius: 12,
+              color: const Color(0xFF251B72).withOpacity(.86),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Bạn cảm nhận như thế nào',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  SizedBox(height: 18),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        '1\n😞',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                      Text(
+                        '2\n😟',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                      Text(
+                        '3\n🙂',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                      Text(
+                        '4\n😃',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                      Text(
+                        '5\n😌',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            PrimaryButton(
+              label: 'Đã Hiểu',
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }

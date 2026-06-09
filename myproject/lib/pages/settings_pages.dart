@@ -102,7 +102,7 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.card_giftcard,
             label: 'Thay đổi thứ tự thói quen',
             color: Colors.white.withOpacity(.25),
-            onTap: () {},
+            onTap: () => _showMessage(context, 'Tính năng đang được cập nhật'),
           ),
           const SizedBox(height: 20),
           _SettingAction(
@@ -120,27 +120,27 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.star,
             label: 'Đánh giá ứng dụng 5 sao',
             color: AppColors.violet,
-            onTap: () {},
+            onTap: () => _showMessage(context, 'Tính năng đang được cập nhật'),
           ),
           const SizedBox(height: 20),
           _SettingAction(
             icon: Icons.card_giftcard,
             label: 'Liên hệ nhà phát triển\nthomas@proddy.app',
             color: Colors.white.withOpacity(.25),
-            onTap: () {},
+            onTap: () => _showMessage(context, 'Tính năng đang được cập nhật'),
           ),
           const SizedBox(height: 20),
           _SettingAction(
             icon: Icons.card_giftcard,
             label: 'Chia sẻ với bạn bè',
             color: Colors.white.withOpacity(.25),
-            onTap: () {},
+            onTap: () => _showMessage(context, 'Tính năng đang được cập nhật'),
           ),
           const SizedBox(height: 24),
           _PlainAction(
             icon: Icons.card_giftcard,
             label: 'Giấy phép',
-            onTap: () {},
+            onTap: () => _showMessage(context, 'Tính năng đang được cập nhật'),
           ),
           _PlainAction(
             icon: Icons.card_giftcard,
@@ -153,7 +153,7 @@ class SettingsPage extends StatelessWidget {
           _PlainAction(
             icon: Icons.delete_outline,
             label: 'Xóa tài khoản',
-            onTap: () {},
+            onTap: () => _showMessage(context, 'Tính năng đang được cập nhật'),
           ),
         ],
       ),
@@ -362,7 +362,7 @@ class EditHabitPage extends StatelessWidget {
           SizedBox(
             height: 44,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => _confirmDeleteHabit(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 foregroundColor: Colors.white,
@@ -382,20 +382,26 @@ class EditHabitPage extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
-          _EditBox(
-            child: Row(
-              children: const [
-                Text(
-                  '06:00',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 31,
-                    fontWeight: FontWeight.w900,
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReminderPage()),
+            ),
+            child: _EditBox(
+              child: Row(
+                children: const [
+                  Text(
+                    '06:00',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 31,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
-                Spacer(),
-                Switch(value: true, onChanged: null),
-              ],
+                  Spacer(),
+                  Switch(value: true, onChanged: null),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 34),
@@ -418,7 +424,10 @@ class EditHabitPage extends StatelessWidget {
           SizedBox(
             height: 44,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ReminderPage()),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.violet,
                 foregroundColor: Colors.white,
@@ -553,7 +562,7 @@ class ReminderPage extends StatelessWidget {
             const Text('Hoặc', style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 28),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 foregroundColor: Colors.white,
@@ -570,6 +579,33 @@ class ReminderPage extends StatelessWidget {
       ),
     );
   }
+}
+
+void _confirmDeleteHabit(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Xóa thói quen'),
+      content: const Text('Bạn có chắc muốn xóa thói quen này không?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Hủy'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+          child: const Text('Xóa'),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 class _SettingsSection extends StatelessWidget {

@@ -72,9 +72,23 @@ class LoginPage extends StatelessWidget {
             ],
           ),
           const _Or(),
-          const _SocialButton(icon: 'G', label: 'Continue with Google'),
+          _SocialButton(
+            icon: 'G',
+            label: 'Continue with Google',
+            onTap: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MyHomePage()),
+            ),
+          ),
           const SizedBox(height: 16),
-          const _SocialButton(icon: '', label: 'Continue with Apple'),
+          _SocialButton(
+            icon: '',
+            label: 'Continue with Apple',
+            onTap: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MyHomePage()),
+            ),
+          ),
           const _Or(),
           Center(
             child: TextButton(
@@ -144,9 +158,23 @@ class RegisterPage extends StatelessWidget {
             ),
           ),
           const _Or(),
-          const _SocialButton(icon: 'G', label: 'Continue with Google'),
+          _SocialButton(
+            icon: 'G',
+            label: 'Continue with Google',
+            onTap: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MyHomePage()),
+            ),
+          ),
           const SizedBox(height: 16),
-          const _SocialButton(icon: '', label: 'Continue with Apple'),
+          _SocialButton(
+            icon: '',
+            label: 'Continue with Apple',
+            onTap: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MyHomePage()),
+            ),
+          ),
         ],
       ),
     );
@@ -435,36 +463,44 @@ class _DarkButton extends StatelessWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.icon, required this.label});
+  const _SocialButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   final String icon;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            icon,
-            style: TextStyle(
-              fontSize: icon == 'G' ? 25 : 28,
-              fontWeight: FontWeight.w900,
-              color: icon == 'G' ? Colors.blue : Colors.black,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              icon,
+              style: TextStyle(
+                fontSize: icon == 'G' ? 25 : 28,
+                fontWeight: FontWeight.w900,
+                color: icon == 'G' ? Colors.blue : Colors.black,
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Text(
-            label,
-            style: const TextStyle(color: Color(0xFF222222), fontSize: 16),
-          ),
-        ],
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: const TextStyle(color: Color(0xFF222222), fontSize: 16),
+            ),
+          ],
+        ),
       ),
     );
   }
