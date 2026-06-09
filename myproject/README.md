@@ -8,6 +8,7 @@
 - Tạo thói quen nhiều bước và lưu thành document thật.
 - Đánh dấu hoàn thành hoặc chưa hoàn thành theo từng ngày.
 - Tính chuỗi ngày liên tiếp hiện tại và chuỗi dài nhất từ lịch sử hoàn thành.
+- Hiển thị danh sách ngày thật thuộc chuỗi hiện tại (`CN`, `T2`, `T3`...) từ `habitLogs`.
 - Thống kê số lần hoàn thành theo tuần và tổng thời gian đã dành.
 - Reflection lưu tâm trạng, cảm xúc, hoạt động và ghi chú theo ngày.
 - Thống kê tâm trạng trung bình và biểu đồ tâm trạng tuần.
@@ -74,6 +75,8 @@ lib/
 │   └── app_repository.dart
 ├── main.dart
 ├── MyHomePage.dart
+├── services/
+│   └── reminder_service.dart
 ├── pages/
 │   ├── auth_pages.dart
 │   ├── create_habit_flow.dart
