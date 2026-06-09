@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../MyHomePage.dart';
 import '../theme/app_design.dart';
 import 'create_habit_flow.dart';
 import 'insight_general_page.dart';
@@ -45,7 +46,11 @@ class _ReflectionPageState extends State<ReflectionPage> {
           if (_page == 0)
             AppBottomNav(
               index: 3,
-              onHome: () => Navigator.pop(context),
+              onHome: () => Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const MyHomePage()),
+                (route) => false,
+              ),
               onInsight: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const InsightGeneralPage()),

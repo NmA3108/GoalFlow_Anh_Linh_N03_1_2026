@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../MyHomePage.dart';
 import '../theme/app_design.dart';
 import 'create_habit_flow.dart';
 import 'insight_page.dart';
@@ -47,7 +48,11 @@ class _InsightGeneralPageState extends State<InsightGeneralPage> {
           ),
           AppBottomNav(
             index: 1,
-            onHome: () => Navigator.pop(context),
+            onHome: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const MyHomePage()),
+              (route) => false,
+            ),
             onInsight: () {},
             onCreate: () => Navigator.push(
               context,
